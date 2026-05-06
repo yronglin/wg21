@@ -5,7 +5,7 @@
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="dcterms.date" content="2026-05-06" />
-  <title>Make `std::make_from_tuple` SFINAE friendly</title>
+  <title>Yihan Wang</title>
   <style>
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -423,15 +423,12 @@ code.sourceCode > span { display: inline; }
 <body>
 <div class="wrapper">
 <header id="title-block-header">
-<h1 class="title" style="text-align:center">Make <code class="sourceCode cpp">std<span class="op">::</span>make_from_tuple</code>
-SFINAE friendly</h1>
+<h1 class="title" style="text-align:center">Yihan Wang</h1>
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
     <td>
-      P3738R0
-      [<a href="https://wg21.link/P3738">Latest</a>]
-      [<a href="https://wg21.link/P3738/status">Status</a>]
+      P0000R0
     </td>
   </tr>
   <tr>
@@ -445,8 +442,6 @@ SFINAE friendly</h1>
   <tr>
     <td style="vertical-align:top">Audience:</td>
     <td>
-      Library Evolution<br>
-      Library<br>
     </td>
   </tr>
   <tr>
@@ -458,127 +453,25 @@ SFINAE friendly</h1>
 </table>
 </header>
 <div style="clear:both">
-<h1 data-number="1" id="introduction"><span class="header-section-number">1</span> Introduction<a href="#introduction" class="self-link"></a></h1>
-<p>This paper introduce constraints for
-<code class="sourceCode cpp">std<span class="op">::</span>make_from_tuple</code>
-to make it SFINAE friendly.</p>
-<h1 data-number="2" id="motivation"><span class="header-section-number">2</span> Motivation<a href="#motivation" class="self-link"></a></h1>
-<p><span class="citation" data-cites="LWG3528"><a href="https://wg21.link/lwg3528" role="doc-biblioref">[LWG3528]</a></span> introduce constraints:</p>
+<div id="TOC" role="doc-toc">
+<h1 id="toctitle">Contents</h1>
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> Tuple, <span class="dt">size_t</span><span class="op">...</span> I<span class="op">&gt;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">requires is_constructible_v&lt;T, decltype(get&lt;I&gt;(declval&lt;Tuple&gt;()))...&gt;</code></span></ins></span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> T make<span class="op">-</span>from<span class="op">-</span>tuple<span class="op">-</span>impl<span class="op">(</span>Tuple<span class="op">&amp;&amp;</span> t, index_sequence<span class="op">&lt;</span>I<span class="op">...&gt;)</span> <span class="op">{</span>     <span class="co">// exposition only</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> T<span class="op">(</span>get<span class="op">&lt;</span>I<span class="op">&gt;(</span>std<span class="op">::</span>forward<span class="op">&lt;</span>Tuple<span class="op">&gt;(</span>t<span class="op">))...)</span>;</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-
-<p>When someone write SFINAE code like the following to check whether
-<code class="sourceCode cpp">T</code>
-can constructed from a tuple, they may hit hard errors like “no matching
-function for call to
-<code class="sourceCode cpp">make<span class="op">-</span>from<span class="op">-</span>tuple<span class="op">-</span>impl</code>
-” (<a href="https://godbolt.org/z/qs9aon1oM">Compiler Explorer</a>).</p>
-
-<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">typename</span> T, <span class="kw">typename</span> Tuple, <span class="kw">typename</span> <span class="op">=</span> <span class="dt">void</span><span class="op">&gt;</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span> has_make_from_tuple <span class="op">=</span> <span class="kw">false</span>;</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">typename</span> T, <span class="kw">typename</span> Tuple<span class="op">&gt;</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span> has_make_from_tuple<span class="op">&lt;</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    T, Tuple,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    std<span class="op">::</span>void_t<span class="op">&lt;</span><span class="kw">decltype</span><span class="op">(</span>std<span class="op">::</span>make_from_tuple<span class="op">&lt;</span>T<span class="op">&gt;(</span>std<span class="op">::</span>declval<span class="op">&lt;</span>Tuple<span class="op">&gt;()))&gt;&gt;</span> <span class="op">=</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">true</span>;</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> A <span class="op">{</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> a;</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">static_assert</span><span class="op">(!</span>has_make_from_tuple<span class="op">&lt;</span><span class="dt">int</span> <span class="op">*</span>, std<span class="op">::</span>tuple<span class="op">&lt;</span>A <span class="op">*&gt;&gt;)</span>;</span></code></pre></div>
-
-<p>Even If the effects are <em>Equivalent to</em> calling a constrained
-function, the constraints has not apply to
-<code class="sourceCode cpp">std<span class="op">::</span>make_from_tuple</code>
-.</p>
-<p>This is somehow unclear when the constraints are not literally
-specified with <em>Constraints</em> in the standard wording
-(<span>16.3.2.4
-<a href="https://wg21.link/structure.specifications">[structure.specifications]</a></span>).
-At least <em>Equivalent to</em> doesn’t propagate every substitution
-failure in immediate context. In the case of
-<code class="sourceCode cpp">make<span class="op">-</span>from<span class="op">-</span>tuple<span class="op">-</span>impl</code>
-, the constraints were introduced via a requires-clause but not literal
-<em>Constraints</em>. Some implementors believed the requires-clause
-should be treated same as <em>Constraints</em>, but this is not
-explicitly stated.</p>
-<h1 data-number="3" id="impact-on-the-standard"><span class="header-section-number">3</span> Impact on the Standard<a href="#impact-on-the-standard" class="self-link"></a></h1>
-<p>This proposal is a pure library improvement.</p>
-<h1 data-number="4" id="implementation-experience"><span class="header-section-number">4</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
-<p>I’ve implemented this improvement in <a href="https://github.com/llvm/llvm-project/pull/85263">
-<code class="sourceCode cpp">libc<span class="op">++</span></code>
-</a>, <a href="https://github.com/microsoft/STL/pull/4528">
-<code class="sourceCode cpp">microsoft<span class="op">/</span>STL</code>
-</a>, <a href="https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=73edc003c0a8f0badc7027e6deefd3a573300b03">
-<code class="sourceCode cpp">libstdc<span class="op">++</span></code>
-</a>.</p>
-<h1 data-number="5" id="proposed-wording"><span class="header-section-number">5</span> Proposed Wording<a href="#proposed-wording" class="self-link"></a></h1>
-<p>Modify section 22.4.6 <span>22.4.6
-<a href="https://wg21.link/tuple.apply">[tuple.apply]</a></span> as
-indicated:</p>
-
-<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> T, tuple<span class="op">-</span>like Tuple<span class="op">&gt;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a> <span class="kw">constexpr</span> T make_from_tuple<span class="op">(</span>Tuple<span class="op">&amp;&amp;</span> t<span class="op">)</span>;</span></code></pre></div>
-
-<p><em>Mandates:</em> If
-<code class="sourceCode cpp">tuple_size_v<span class="op">&lt;</span>remove_reference_t<span class="op">&lt;</span>Tuple<span class="op">&gt;&gt;</span></code>
-is 1, then
-<code class="sourceCode cpp">reference_constructs_from_tem</code>
--
-<code class="sourceCode cpp">porary_v<span class="op">&lt;</span>T, <span class="kw">decltype</span><span class="op">(</span>get<span class="op">&lt;</span><span class="dv">0</span><span class="op">&gt;(</span>declval<span class="op">&lt;</span>Tuple<span class="op">&gt;()))&gt;</span></code>
-is
-<code class="sourceCode cpp"><span class="kw">false</span></code>
-.</p>
-<div class="add" style="color: #006e28">
-<p>Let
-<code class="sourceCode default">I</code>
-be the pack
-<code class="sourceCode default">0, 1, ..., (tuple_size_v&lt;remove_reference_t&lt;Tuple&gt;&gt; - 1)</code>
-.</p>
-<p><em>Constraints:</em></p>
+</div>
+<h1 id="wg21-papers">WG21 Papers<a href="#wg21-papers" class="self-link"></a></h1>
 <ul>
-<li>
-<code class="sourceCode default">is_constructible_v&lt;T, decltype(get&lt;I&gt;(declval&lt;Tuple&gt;()))...&gt;</code>
-is
-<code class="sourceCode default">true</code>
-.</li>
+<li><p><a href="generated/P2906R1.html">P2906R1: Structured bindings for
+<code class="sourceCode cpp">std<span class="op">::</span>extents</code>
+</a><br />
+This paper proposes structured binding support for
+<code class="sourceCode cpp">std<span class="op">::</span>extents</code>
+.</p></li>
+<li><p><a href="generated/P3738R1.html">P3738R1: Make
+<code class="sourceCode cpp">std<span class="op">::</span>make_from_tuple</code>
+SFINAE friendly</a><br />
+This paper proposes constraints for
+<code class="sourceCode cpp">std<span class="op">::</span>make_from_tuple</code>
+so it works better in SFINAE and generic-programming contexts.</p></li>
 </ul>
-
-</div>
-<p><em>Effects:</em> Given the exposition-only function template:</p>
-
-<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std <span class="op">{</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> T, tuple<span class="op">-</span>like Tuple, <span class="dt">size_t</span><span class="op">...</span> I<span class="op">&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">requires is_constructible_v&lt;T, decltype(get&lt;I&gt;(declval&lt;Tuple&gt;()))...&gt;</code></span></del></span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> T make<span class="op">-</span>from<span class="op">-</span>tuple<span class="op">-</span>impl<span class="op">(</span>Tuple<span class="op">&amp;&amp;</span> t, index_sequence<span class="op">&lt;</span>I<span class="op">...&gt;)</span> <span class="op">{</span>   <span class="co">// exposition only</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> T<span class="op">(</span>get<span class="op">&lt;</span>I<span class="op">&gt;(</span>std<span class="op">::</span>forward<span class="op">&lt;</span>Tuple<span class="op">&gt;(</span>t<span class="op">))...)</span>;</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-
-<p><em>Equivalent to:</em></p>
-
-<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> make<span class="op">-</span>from<span class="op">-</span>tuple<span class="op">-</span>impl<span class="op">&lt;</span>T<span class="op">&gt;(</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>           std<span class="op">::</span>forward<span class="op">&lt;</span>Tuple<span class="op">&gt;(</span>t<span class="op">)</span>,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>           make_index_sequence<span class="op">&lt;</span>tuple_size_v<span class="op">&lt;</span>remove_reference_t<span class="op">&lt;</span>Tuple<span class="op">&gt;&gt;&gt;{})</span>;</span></code></pre></div>
-<p><span class="note"><span>[ <em>Note:</em> </span>The type of T must
-be supplied as an explicit template parameter, as it cannot be deduced
-from the argument list.<span> — <em>end note</em> ]</span></span></p>
-<h1 data-number="6" id="acknowledgements"><span class="header-section-number">6</span> Acknowledgements<a href="#acknowledgements" class="self-link"></a></h1>
-<p>Thank you to Jiang An, Mark de Wever, Stephan T. Lavavej, Jonathan
-Wakely, Barry Revzin, Daniel Krügler, and everyone else who contributed
-to the discussions, and encouraged me to write this paper.</p>
-<h1 data-number="7" id="bibliography"><span class="header-section-number">7</span> References<a href="#bibliography" class="self-link"></a></h1>
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="1" role="doc-bibliography">
-<div id="ref-LWG3528" class="csl-entry" role="doc-biblioentry">
-[LWG3528] Tim Song. make_from_tuple can perform (the equivalent of) a
-C-style cast. <a href="https://wg21.link/lwg3528"><div class="csl-block">https://wg21.link/lwg3528</div></a>
-</div>
-</div>
 </div>
 </div>
 </body>
