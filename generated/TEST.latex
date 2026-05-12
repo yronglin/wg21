@@ -198,7 +198,7 @@ Reply-to:   \@author
 \author{&Author
 0\\&<\href{mailto:author0@gmail.com}{\nolinkurl{author0@gmail.com}}>\\&Author
 1\\&<\href{mailto:author1@gmail.com}{\nolinkurl{author1@gmail.com}}>\\}
-\date{2026-04-27}
+\date{2026-05-10}
 
 \begin{document}
 \maketitle
@@ -280,6 +280,10 @@ Various compositions in compact list:
 \item
 
   \VERB|\NormalTok{compare\_3way}|
+\item
+  {{\color[HTML]{006e28}\uline{{\mbox{
+  \VERB|\NormalTok{compare\_3way}|
+  }}}}}
 \item
 
   \VERB|\NormalTok{3WAY}|
@@ -722,6 +726,24 @@ Small, inline changes are done with
 or
 \VERB|\OperatorTok{[}\NormalTok{old text}\OperatorTok{]\{.}\NormalTok{rm}\OperatorTok{\}}|
 .
+
+The optional \emph{attribute-specifier-seq} appertains to the
+{{\color[HTML]{bf0303}\sout{label}}}{{\color[HTML]{006e28}\uline{\emph{general-label}}}}.
+The only use of a {{\color[HTML]{bf0303}\sout{label with an
+\emph{identifier}}}}{{\color[HTML]{006e28}\uline{\emph{label}}}} is as
+the target of a
+\VERB|\ControlFlowTok{goto}|
+, {{\color[HTML]{006e28}\uline{{\mbox{
+\VERB|\NormalTok{break}|
+}}, or {\mbox{
+\VERB|\NormalTok{continue}|
+}}}}}. No two
+{{\color[HTML]{bf0303}\sout{label}}}{{\color[HTML]{006e28}\uline{\emph{label}}}}s
+in a function shall have the same \emph{identifier}. A
+{{\color[HTML]{bf0303}\sout{label}}}{{\color[HTML]{006e28}\uline{\emph{general-label}}}}
+can be used {{\color[HTML]{bf0303}\sout{in a {\mbox{
+\VERB|\NormalTok{goto}|
+}} statement}}} before its introduction by a \emph{labeled-statement}.
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.1481}}
