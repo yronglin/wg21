@@ -4,84 +4,113 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2026-05-06" />
+  <meta name="dcterms.date" content="2026-06-06" />
   <title>Make `std::make_from_tuple` SFINAE friendly</title>
   <style>
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
-      div.csl-block{margin-left: 1.5em;}
-      ul.task-list{list-style: none;}
-      pre > code.sourceCode { white-space: pre; position: relative; }
-      pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-      pre > code.sourceCode > span:empty { height: 1.2em; }
-      .sourceCode { overflow: visible; }
-      code.sourceCode > span { color: inherit; text-decoration: inherit; }
-      div.sourceCode { margin: 1em 0; }
-      pre.sourceCode { margin: 0; }
-      @media screen {
-      div.sourceCode { overflow: auto; }
-      }
-      @media print {
-      pre > code.sourceCode { white-space: pre-wrap; }
-      pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-      }
-      pre.numberSource code
-        { counter-reset: source-line 0; }
-      pre.numberSource code > span
-        { position: relative; left: -4em; counter-increment: source-line; }
-      pre.numberSource code > span > a:first-child::before
-        { content: counter(source-line);
-          position: relative; left: -1em; text-align: right; vertical-align: baseline;
-          border: none; display: inline-block;
-          -webkit-touch-callout: none; -webkit-user-select: none;
-          -khtml-user-select: none; -moz-user-select: none;
-          -ms-user-select: none; user-select: none;
-          padding: 0 4px; width: 4em;
-          color: #aaaaaa;
-        }
-      pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-      div.sourceCode
-        {  background-color: #f6f8fa; }
-      @media screen {
-      pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-      }
-      code span { } /* Normal */
-      code span.al { color: #ff0000; } /* Alert */
-      code span.an { } /* Annotation */
-      code span.at { } /* Attribute */
-      code span.bn { color: #9f6807; } /* BaseN */
-      code span.bu { color: #9f6807; } /* BuiltIn */
-      code span.cf { color: #00607c; } /* ControlFlow */
-      code span.ch { color: #9f6807; } /* Char */
-      code span.cn { } /* Constant */
-      code span.co { color: #6a737d; font-style: italic; } /* Comment */
-      code span.cv { color: #6a737d; font-style: italic; } /* CommentVar */
-      code span.do { color: #6a737d; } /* Documentation */
-      code span.dt { color: #00607c; } /* DataType */
-      code span.dv { color: #9f6807; } /* DecVal */
-      code span.er { color: #ff0000; font-weight: bold; } /* Error */
-      code span.ex { } /* Extension */
-      code span.fl { color: #9f6807; } /* Float */
-      code span.fu { } /* Function */
-      code span.im { } /* Import */
-      code span.in { color: #6a737d; } /* Information */
-      code span.kw { color: #00607c; } /* Keyword */
-      code span.op { color: #7b3e91; } /* Operator */
-      code span.ot { } /* Other */
-      code span.pp { color: #6f4e37; } /* Preprocessor */
-      code span.re { } /* RegionMarker */
-      code span.sc { color: #9f6807; } /* SpecialChar */
-      code span.ss { color: #9f6807; } /* SpecialString */
-      code span.st { color: #9f6807; } /* String */
-      code span.va { } /* Variable */
-      code span.vs { color: #9f6807; } /* VerbatimString */
-      code span.wa { color: #6a737d; font-weight: bold; } /* Warning */
-      code.diff {color: #898887}
-      code.diff span.va {color: #006e28}
-      code.diff span.st {color: #bf0303}
-  </style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ background-color: #f6f8fa; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span { } 
+code span.al { color: #ff0000; } 
+code span.an { } 
+code span.at { } 
+code span.bn { color: #9f6807; } 
+code span.bu { color: #9f6807; } 
+code span.cf { color: #00607c; } 
+code span.ch { color: #9f6807; } 
+code span.cn { } 
+code span.co { color: #6a737d; font-style: italic; } 
+code span.cv { color: #6a737d; font-style: italic; } 
+code span.do { color: #6a737d; } 
+code span.dt { color: #00607c; } 
+code span.dv { color: #9f6807; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #9f6807; } 
+code span.fu { } 
+code span.im { } 
+code span.in { color: #6a737d; } 
+code span.kw { color: #00607c; } 
+code span.op { color: #7b3e91; } 
+code span.ot { } 
+code span.pp { color: #6f4e37; } 
+code span.re { } 
+code span.sc { color: #9f6807; } 
+code span.ss { color: #9f6807; } 
+code span.st { color: #9f6807; } 
+code span.va { } 
+code span.vs { color: #9f6807; } 
+code span.wa { color: #6a737d; font-weight: bold; } 
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+} code.diff {color: #898887}
+code.diff span.va {color: #006e28}
+code.diff span.st {color: #bf0303}
+</style>
   <style type="text/css">
 body {
 margin: 5em;
@@ -90,10 +119,6 @@ font-family: serif;
 hyphens: auto;
 line-height: 1.35;
 text-align: justify;
-
--webkit-text-size-adjust: none;
--moz-text-size-adjust: none;
-text-size-adjust: none;
 }
 @media screen and (max-width: 30em) {
 body {
@@ -411,21 +436,98 @@ margin-top: 1em;
 }
 ol.enumeratea { list-style-type: none; background: inherit; }
 ol.enumerate { list-style-type: none; background: inherit; }
-
-code.sourceCode > span { display: inline; }
 </style>
-  <link href="data:image/x-icon;base64,AAABAAIAEBAAAAEAIABoBAAAJgAAACAgAAABACAAqBAAAI4EAAAoAAAAEAAAACAAAAABACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AIJEAACCRAAAgkQAAIJEAACCRAAAgkQAVoJEAN6CRADegkQAWIJEAACCRAAAgkQAAIJEAACCRAAA////AP///wCCRAAAgkQAAIJEAACCRAAsgkQAvoJEAP+CRAD/gkQA/4JEAP+CRADAgkQALoJEAACCRAAAgkQAAP///wD///8AgkQAAIJEABSCRACSgkQA/IJEAP99PQD/dzMA/3czAP99PQD/gkQA/4JEAPyCRACUgkQAFIJEAAD///8A////AHw+AFiBQwDqgkQA/4BBAP9/PxP/uZd6/9rJtf/bybX/upd7/39AFP+AQQD/gkQA/4FDAOqAQgBc////AP///wDKklv4jlEa/3o7AP+PWC//8+3o///////////////////////z7un/kFox/35AAP+GRwD/mVYA+v///wD///8A0Zpk+NmibP+0d0T/8evj///////+/fv/1sKz/9bCs//9/fr//////+/m2/+NRwL/nloA/5xYAPj///8A////ANKaZPjRmGH/5cKh////////////k149/3UwAP91MQD/lmQ//86rhv+USg3/m1YA/5hSAP+bVgD4////AP///wDSmmT4zpJY/+/bx///////8+TV/8mLT/+TVx//gkIA/5lVAP+VTAD/x6B//7aEVv/JpH7/s39J+P///wD///8A0ppk+M6SWP/u2sf///////Pj1f/Nj1T/2KFs/8mOUv+eWhD/lEsA/8aee/+0glT/x6F7/7J8Rvj///8A////ANKaZPjRmGH/48Cf///////+/v7/2qt//82PVP/OkFX/37KJ/86siv+USg7/mVQA/5hRAP+bVgD4////AP///wDSmmT40ppk/9CVXP/69O////////7+/v/x4M//8d/P//7+/f//////9u7n/6tnJf+XUgD/nFgA+P///wD///8A0ppk+NKaZP/RmWL/1qNy//r07///////////////////////+vXw/9akdP/Wnmn/y5FY/6JfFvj///8A////ANKaZFTSmmTo0ppk/9GYYv/Ql1//5cWm//Hg0P/x4ND/5cWm/9GXYP/RmGH/0ppk/9KaZOjVnmpY////AP///wDSmmQA0ppkEtKaZI7SmmT60ppk/9CWX//OkVb/zpFW/9CWX//SmmT/0ppk/NKaZJDSmmQS0ppkAP///wD///8A0ppkANKaZADSmmQA0ppkKtKaZLrSmmT/0ppk/9KaZP/SmmT/0ppkvNKaZCrSmmQA0ppkANKaZAD///8A////ANKaZADSmmQA0ppkANKaZADSmmQA0ppkUtKaZNzSmmTc0ppkVNKaZADSmmQA0ppkANKaZADSmmQA////AP5/AAD4HwAA4AcAAMADAACAAQAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAMADAADgBwAA+B8AAP5/AAAoAAAAIAAAAEAAAAABACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AP///wCCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAAyCRACMgkQA6oJEAOqCRACQgkQAEIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAA////AP///wD///8A////AIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRABigkQA5oJEAP+CRAD/gkQA/4JEAP+CRADqgkQAZoJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAAD///8A////AP///wD///8AgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAA4gkQAwoJEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAP+CRAD/gkQAxIJEADyCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAP///wD///8A////AP///wCCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAWgkQAmIJEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAJyCRAAYgkQAAIJEAACCRAAAgkQAAIJEAACCRAAA////AP///wD///8A////AIJEAACCRAAAgkQAAIJEAACCRAAAgkQAdIJEAPCCRAD/gkQA/4JEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAPSCRAB4gkQAAIJEAACCRAAAgkQAAIJEAAD///8A////AP///wD///8AgkQAAIJEAACCRAAAgkQASoJEANKCRAD/gkQA/4JEAP+CRAD/g0YA/39AAP9zLgD/bSQA/2shAP9rIQD/bSQA/3MuAP9/PwD/g0YA/4JEAP+CRAD/gkQA/4JEAP+CRADUgkQAToJEAACCRAAAgkQAAP///wD///8A////AP///wB+PwAAgkUAIoJEAKiCRAD/gkQA/4JEAP+CRAD/hEcA/4BBAP9sIwD/dTAA/5RfKv+viF7/vp56/76ee/+wiF7/lWAr/3YxAP9sIwD/f0AA/4RHAP+CRAD/gkQA/4JEAP+CRAD/gkQArIJEACaBQwAA////AP///wD///8A////AIBCAEBzNAD6f0EA/4NFAP+CRAD/gkQA/4VIAP92MwD/bSUA/6N1Tv/ezsL/////////////////////////////////38/D/6V3Uv9uJgD/dTEA/4VJAP+CRAD/gkQA/4JEAP+BQwD/fUAA/4FDAEj///8A////AP///wD///8AzJRd5qBlKf91NgD/dDUA/4JEAP+FSQD/cy4A/3YyAP/PuKP//////////////////////////////////////////////////////9K7qP94NQD/ciwA/4VJAP+CRAD/fkEA/35BAP+LSwD/mlYA6v///wD///8A////AP///wDdpnL/4qx3/8KJUv+PUhf/cTMA/3AsAP90LgD/4dK+/////////////////////////////////////////////////////////////////+TYxf91MAD/dTIA/31CAP+GRwD/llQA/6FcAP+gWwD8////AP///wD///8A////ANGZY/LSm2X/4ap3/92mcP+wdT3/byQA/8mwj////////////////////////////////////////////////////////////////////////////+LYxv9zLgP/jUoA/59bAP+hXAD/nFgA/5xYAPL///8A////AP///wD///8A0ppk8tKaZP/RmWL/1p9q/9ubXv/XqXj////////////////////////////7+fD/vZyG/6BxS/+gcUr/vJuE//r37f//////////////////////3MOr/5dQBf+dVQD/nVkA/5xYAP+cWAD/nFgA8v///wD///8A////AP///wDSmmTy0ppk/9KaZP/SmWP/yohJ//jo2P//////////////////////4NTG/4JDFf9lGAD/bSQA/20kAP9kGAD/fz8S/+Xb0f//////5NG9/6txN/+LOgD/m1QA/51aAP+cWAD/m1cA/5xYAP+cWADy////AP///wD///8A////ANKaZPLSmmT/0ppk/8+TWf/Unmv//v37//////////////////////+TWRr/VwsA/35AAP+ERgD/g0UA/4JGAP9lHgD/kFga/8KXX/+TRwD/jT4A/49CAP+VTQD/n10A/5xYAP+OQQD/lk4A/55cAPL///8A////AP///wD///8A0ppk8tKaZP/SmmT/y4tO/92yiP//////////////////////8NnE/8eCQP+rcTT/ez0A/3IyAP98PgD/gEMA/5FSAP+USwD/jj8A/5lUAP+JNwD/yqV2/694Mf+HNQD/jkAA/82rf/+laBj/jT4A8v///wD///8A////AP///wDSmmTy0ppk/9KaZP/LiUr/4byY///////////////////////gupX/0I5P/+Wuev/Lklz/l1sj/308AP+QSwD/ol0A/59aAP+aVQD/k0oA/8yoh///////+fXv/6pwO//Lp3v///////Pr4f+oay7y////AP///wD///8A////ANKaZPLSmmT/0ppk/8uJSv/hvJj//////////////////////+G7l//Jhkb/0ppk/96nc//fqXX/x4xO/6dkFP+QSQD/llEA/5xXAP+USgD/yaOA///////38uv/qG05/8ijdv//////8efb/6ZpLPL///8A////AP///wD///8A0ppk8tKaZP/SmmT/zIxO/9yxh///////////////////////7dbA/8iEQf/Sm2X/0Zlj/9ScZv/eqHf/2KJv/7yAQf+XTgD/iToA/5lSAP+JNgD/yKFv/611LP+HNQD/jT8A/8qmeP+kZRT/jT4A8v///wD///8A////AP///wDSmmTy0ppk/9KaZP/Pk1n/1J5q//78+//////////////////+/fv/1aFv/8iEQv/Tm2b/0ppl/9GZY//Wn2z/1pZc/9eldf/Bl2b/kUcA/4w9AP+OQAD/lUwA/59eAP+cWQD/jT8A/5ZOAP+eXADy////AP///wD///8A////ANKaZPLSmmT/0ppk/9KZY//KiEn/8d/P///////////////////////47+f/05tm/8iCP//KiEj/yohJ/8eCP//RmGH//vfy///////n1sP/rXQ7/4k4AP+TTAD/nVoA/5xYAP+cVwD/nFgA/5xYAPL///8A////AP///wD///8A0ppk8tKaZP/SmmT/0ptl/8uLTf/aq37////////////////////////////+/fz/6c2y/961jv/etY7/6Myx//78+v//////////////////////3MWv/5xXD/+ORAD/mFQA/51ZAP+cWAD/nFgA8v///wD///8A////AP///wDSmmTy0ppk/9KaZP/SmmT/0ppk/8mFRP/s1b//////////////////////////////////////////////////////////////////////////////+PD/0JFU/7NzMv+WUQD/kUsA/5tXAP+dWQDy////AP///wD///8A////ANKaZP/SmmT/0ppk/9KaZP/Sm2X/z5NZ/8yMT//z5NX/////////////////////////////////////////////////////////////////9Ofa/8yNUP/UmGH/36p5/8yTWv+qaSD/kksA/5ROAPz///8A////AP///wD///8A0ppk5NKaZP/SmmT/0ppk/9KaZP/TnGf/zY9T/82OUv/t1sD//////////////////////////////////////////////////////+7Yw//OkFX/zI5R/9OcZ//SmmP/26V0/9ymdf/BhUf/ol8R6P///wD///8A////AP///wDSmmQ80ppk9tKaZP/SmmT/0ppk/9KaZP/TnGj/zpFW/8qJSv/dson/8uHS//////////////////////////////////Lj0//etIv/y4lL/86QVf/TnGj/0ppk/9KaZP/RmWP/05xn/9ymdfjUnWdC////AP///wD///8A////ANKaZADSmmQc0ppkotKaZP/SmmT/0ppk/9KaZP/Tm2b/0Zli/8qJSf/NjlH/16Z3/+G8mP/myKr/5siq/+G8mP/Xp3f/zY5S/8qISf/RmGH/05tm/9KaZP/SmmT/0ppk/9KaZP/SmmSm0pljINWdaQD///8A////AP///wD///8A0ppkANKaZADSmmQA0ppkQtKaZMrSmmT/0ppk/9KaZP/SmmT/0ptl/9GYYf/Nj1P/y4lL/8qISP/KiEj/y4lK/82PU//RmGH/0ptl/9KaZP/SmmT/0ppk/9KaZP/SmmTO0ppkRtKaZADSmmQA0ppkAP///wD///8A////AP///wDSmmQA0ppkANKaZADSmmQA0ppkANKaZGzSmmTu0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmTw0ppkcNKaZADSmmQA0ppkANKaZADSmmQA////AP///wD///8A////ANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZBLSmmSQ0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppklNKaZBTSmmQA0ppkANKaZADSmmQA0ppkANKaZAD///8A////AP///wD///8A0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQy0ppkutKaZP/SmmT/0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppkvtKaZDbSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkAP///wD///8A////AP///wDSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkXNKaZODSmmT/0ppk/9KaZP/SmmT/0ppk5NKaZGDSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA////AP///wD///8A////ANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkBtKaZIbSmmTo0ppk6tKaZIrSmmQK0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZAD///8A////AP/8P///+B///+AH//+AAf//AAD//AAAP/AAAA/gAAAHwAAAA8AAAAPAAAADwAAAA8AAAAPAAAADwAAAA8AAAAPAAAADwAAAA8AAAAPAAAADwAAAA8AAAAPAAAADwAAAA+AAAAfwAAAP/AAAP/8AAP//gAH//+AH///4H////D//" rel="icon" />
+  <style type="text/css">table thead tr {
+border-bottom: 3px solid black;
+border-bottom-style: double;
+}
+table tbody tr {
+border-bottom: 1px solid black;
+}
+
+#title-block-header > table {
+border: none;
+float: right;
+}
+#title-block-header > table tbody tr {
+border-bottom: none;
+}
+
+ins, del {
+text-decoration-thickness: 1px;
+}
+
+ins {
+text-underline-offset: 3.5px;
+}
+
+div.sourceCode {
+padding: 0.5em;
+}
+
+.view-controls {
+position: sticky;
+top: 0.75rem;
+z-index: 1000;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+gap: 0.35rem;
+width: fit-content;
+margin-left: auto;
+margin-bottom: 1rem;
+padding: 0.45rem 0.8rem;
+border: 1px solid #b7c0c8;
+border-radius: 999px;
+background: rgba(255, 255, 255, 0.96);
+color: #22303c;
+font: 600 0.9rem/1.1 sans-serif;
+box-shadow: 0 0.2rem 0.8rem rgba(34, 48, 60, 0.12);
+}
+.view-controls:hover {
+background: #f3f6f8;
+}
+.view-controls label {
+display: flex;
+align-items: center;
+gap: 0.45rem;
+}
+.view-controls input {
+margin: 0;
+}
+.view-controls span {
+white-space: nowrap;
+}
+body[data-syntax-highlighting="off"] code.sourceCode:not(.diff) span:not(.add, .rm, .co, .cv, .do, .in) {
+color: inherit !important;
+font-style: inherit !important;
+font-weight: inherit !important;
+text-decoration: inherit !important;
+}
+body[data-deleted-text="hide"] .rm del {
+display: none !important;
+}
+</style>
+  <link href="data:image/vnd.microsoft.icon;base64,AAABAAIAEBAAAAEAIABoBAAAJgAAACAgAAABACAAqBAAAI4EAAAoAAAAEAAAACAAAAABACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AIJEAACCRAAAgkQAAIJEAACCRAAAgkQAVoJEAN6CRADegkQAWIJEAACCRAAAgkQAAIJEAACCRAAA////AP///wCCRAAAgkQAAIJEAACCRAAsgkQAvoJEAP+CRAD/gkQA/4JEAP+CRADAgkQALoJEAACCRAAAgkQAAP///wD///8AgkQAAIJEABSCRACSgkQA/IJEAP99PQD/dzMA/3czAP99PQD/gkQA/4JEAPyCRACUgkQAFIJEAAD///8A////AHw+AFiBQwDqgkQA/4BBAP9/PxP/uZd6/9rJtf/bybX/upd7/39AFP+AQQD/gkQA/4FDAOqAQgBc////AP///wDKklv4jlEa/3o7AP+PWC//8+3o///////////////////////z7un/kFox/35AAP+GRwD/mVYA+v///wD///8A0Zpk+NmibP+0d0T/8evj///////+/fv/1sKz/9bCs//9/fr//////+/m2/+NRwL/nloA/5xYAPj///8A////ANKaZPjRmGH/5cKh////////////k149/3UwAP91MQD/lmQ//86rhv+USg3/m1YA/5hSAP+bVgD4////AP///wDSmmT4zpJY/+/bx///////8+TV/8mLT/+TVx//gkIA/5lVAP+VTAD/x6B//7aEVv/JpH7/s39J+P///wD///8A0ppk+M6SWP/u2sf///////Pj1f/Nj1T/2KFs/8mOUv+eWhD/lEsA/8aee/+0glT/x6F7/7J8Rvj///8A////ANKaZPjRmGH/48Cf///////+/v7/2qt//82PVP/OkFX/37KJ/86siv+USg7/mVQA/5hRAP+bVgD4////AP///wDSmmT40ppk/9CVXP/69O////////7+/v/x4M//8d/P//7+/f//////9u7n/6tnJf+XUgD/nFgA+P///wD///8A0ppk+NKaZP/RmWL/1qNy//r07///////////////////////+vXw/9akdP/Wnmn/y5FY/6JfFvj///8A////ANKaZFTSmmTo0ppk/9GYYv/Ql1//5cWm//Hg0P/x4ND/5cWm/9GXYP/RmGH/0ppk/9KaZOjVnmpY////AP///wDSmmQA0ppkEtKaZI7SmmT60ppk/9CWX//OkVb/zpFW/9CWX//SmmT/0ppk/NKaZJDSmmQS0ppkAP///wD///8A0ppkANKaZADSmmQA0ppkKtKaZLrSmmT/0ppk/9KaZP/SmmT/0ppkvNKaZCrSmmQA0ppkANKaZAD///8A////ANKaZADSmmQA0ppkANKaZADSmmQA0ppkUtKaZNzSmmTc0ppkVNKaZADSmmQA0ppkANKaZADSmmQA////AP5/AAD4HwAA4AcAAMADAACAAQAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAMADAADgBwAA+B8AAP5/AAAoAAAAIAAAAEAAAAABACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AP///wCCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAAyCRACMgkQA6oJEAOqCRACQgkQAEIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAA////AP///wD///8A////AIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRABigkQA5oJEAP+CRAD/gkQA/4JEAP+CRADqgkQAZoJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAAD///8A////AP///wD///8AgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAA4gkQAwoJEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAP+CRAD/gkQAxIJEADyCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAAgkQAAP///wD///8A////AP///wCCRAAAgkQAAIJEAACCRAAAgkQAAIJEAACCRAAWgkQAmIJEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAJyCRAAYgkQAAIJEAACCRAAAgkQAAIJEAACCRAAA////AP///wD///8A////AIJEAACCRAAAgkQAAIJEAACCRAAAgkQAdIJEAPCCRAD/gkQA/4JEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAP+CRAD/gkQA/4JEAPSCRAB4gkQAAIJEAACCRAAAgkQAAIJEAAD///8A////AP///wD///8AgkQAAIJEAACCRAAAgkQASoJEANKCRAD/gkQA/4JEAP+CRAD/g0YA/39AAP9zLgD/bSQA/2shAP9rIQD/bSQA/3MuAP9/PwD/g0YA/4JEAP+CRAD/gkQA/4JEAP+CRADUgkQAToJEAACCRAAAgkQAAP///wD///8A////AP///wB+PwAAgkUAIoJEAKiCRAD/gkQA/4JEAP+CRAD/hEcA/4BBAP9sIwD/dTAA/5RfKv+viF7/vp56/76ee/+wiF7/lWAr/3YxAP9sIwD/f0AA/4RHAP+CRAD/gkQA/4JEAP+CRAD/gkQArIJEACaBQwAA////AP///wD///8A////AIBCAEBzNAD6f0EA/4NFAP+CRAD/gkQA/4VIAP92MwD/bSUA/6N1Tv/ezsL/////////////////////////////////38/D/6V3Uv9uJgD/dTEA/4VJAP+CRAD/gkQA/4JEAP+BQwD/fUAA/4FDAEj///8A////AP///wD///8AzJRd5qBlKf91NgD/dDUA/4JEAP+FSQD/cy4A/3YyAP/PuKP//////////////////////////////////////////////////////9K7qP94NQD/ciwA/4VJAP+CRAD/fkEA/35BAP+LSwD/mlYA6v///wD///8A////AP///wDdpnL/4qx3/8KJUv+PUhf/cTMA/3AsAP90LgD/4dK+/////////////////////////////////////////////////////////////////+TYxf91MAD/dTIA/31CAP+GRwD/llQA/6FcAP+gWwD8////AP///wD///8A////ANGZY/LSm2X/4ap3/92mcP+wdT3/byQA/8mwj////////////////////////////////////////////////////////////////////////////+LYxv9zLgP/jUoA/59bAP+hXAD/nFgA/5xYAPL///8A////AP///wD///8A0ppk8tKaZP/RmWL/1p9q/9ubXv/XqXj////////////////////////////7+fD/vZyG/6BxS/+gcUr/vJuE//r37f//////////////////////3MOr/5dQBf+dVQD/nVkA/5xYAP+cWAD/nFgA8v///wD///8A////AP///wDSmmTy0ppk/9KaZP/SmWP/yohJ//jo2P//////////////////////4NTG/4JDFf9lGAD/bSQA/20kAP9kGAD/fz8S/+Xb0f//////5NG9/6txN/+LOgD/m1QA/51aAP+cWAD/m1cA/5xYAP+cWADy////AP///wD///8A////ANKaZPLSmmT/0ppk/8+TWf/Unmv//v37//////////////////////+TWRr/VwsA/35AAP+ERgD/g0UA/4JGAP9lHgD/kFga/8KXX/+TRwD/jT4A/49CAP+VTQD/n10A/5xYAP+OQQD/lk4A/55cAPL///8A////AP///wD///8A0ppk8tKaZP/SmmT/y4tO/92yiP//////////////////////8NnE/8eCQP+rcTT/ez0A/3IyAP98PgD/gEMA/5FSAP+USwD/jj8A/5lUAP+JNwD/yqV2/694Mf+HNQD/jkAA/82rf/+laBj/jT4A8v///wD///8A////AP///wDSmmTy0ppk/9KaZP/LiUr/4byY///////////////////////gupX/0I5P/+Wuev/Lklz/l1sj/308AP+QSwD/ol0A/59aAP+aVQD/k0oA/8yoh///////+fXv/6pwO//Lp3v///////Pr4f+oay7y////AP///wD///8A////ANKaZPLSmmT/0ppk/8uJSv/hvJj//////////////////////+G7l//Jhkb/0ppk/96nc//fqXX/x4xO/6dkFP+QSQD/llEA/5xXAP+USgD/yaOA///////38uv/qG05/8ijdv//////8efb/6ZpLPL///8A////AP///wD///8A0ppk8tKaZP/SmmT/zIxO/9yxh///////////////////////7dbA/8iEQf/Sm2X/0Zlj/9ScZv/eqHf/2KJv/7yAQf+XTgD/iToA/5lSAP+JNgD/yKFv/611LP+HNQD/jT8A/8qmeP+kZRT/jT4A8v///wD///8A////AP///wDSmmTy0ppk/9KaZP/Pk1n/1J5q//78+//////////////////+/fv/1aFv/8iEQv/Tm2b/0ppl/9GZY//Wn2z/1pZc/9eldf/Bl2b/kUcA/4w9AP+OQAD/lUwA/59eAP+cWQD/jT8A/5ZOAP+eXADy////AP///wD///8A////ANKaZPLSmmT/0ppk/9KZY//KiEn/8d/P///////////////////////47+f/05tm/8iCP//KiEj/yohJ/8eCP//RmGH//vfy///////n1sP/rXQ7/4k4AP+TTAD/nVoA/5xYAP+cVwD/nFgA/5xYAPL///8A////AP///wD///8A0ppk8tKaZP/SmmT/0ptl/8uLTf/aq37////////////////////////////+/fz/6c2y/961jv/etY7/6Myx//78+v//////////////////////3MWv/5xXD/+ORAD/mFQA/51ZAP+cWAD/nFgA8v///wD///8A////AP///wDSmmTy0ppk/9KaZP/SmmT/0ppk/8mFRP/s1b//////////////////////////////////////////////////////////////////////////////+PD/0JFU/7NzMv+WUQD/kUsA/5tXAP+dWQDy////AP///wD///8A////ANKaZP/SmmT/0ppk/9KaZP/Sm2X/z5NZ/8yMT//z5NX/////////////////////////////////////////////////////////////////9Ofa/8yNUP/UmGH/36p5/8yTWv+qaSD/kksA/5ROAPz///8A////AP///wD///8A0ppk5NKaZP/SmmT/0ppk/9KaZP/TnGf/zY9T/82OUv/t1sD//////////////////////////////////////////////////////+7Yw//OkFX/zI5R/9OcZ//SmmP/26V0/9ymdf/BhUf/ol8R6P///wD///8A////AP///wDSmmQ80ppk9tKaZP/SmmT/0ppk/9KaZP/TnGj/zpFW/8qJSv/dson/8uHS//////////////////////////////////Lj0//etIv/y4lL/86QVf/TnGj/0ppk/9KaZP/RmWP/05xn/9ymdfjUnWdC////AP///wD///8A////ANKaZADSmmQc0ppkotKaZP/SmmT/0ppk/9KaZP/Tm2b/0Zli/8qJSf/NjlH/16Z3/+G8mP/myKr/5siq/+G8mP/Xp3f/zY5S/8qISf/RmGH/05tm/9KaZP/SmmT/0ppk/9KaZP/SmmSm0pljINWdaQD///8A////AP///wD///8A0ppkANKaZADSmmQA0ppkQtKaZMrSmmT/0ppk/9KaZP/SmmT/0ptl/9GYYf/Nj1P/y4lL/8qISP/KiEj/y4lK/82PU//RmGH/0ptl/9KaZP/SmmT/0ppk/9KaZP/SmmTO0ppkRtKaZADSmmQA0ppkAP///wD///8A////AP///wDSmmQA0ppkANKaZADSmmQA0ppkANKaZGzSmmTu0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmTw0ppkcNKaZADSmmQA0ppkANKaZADSmmQA////AP///wD///8A////ANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZBLSmmSQ0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppklNKaZBTSmmQA0ppkANKaZADSmmQA0ppkANKaZAD///8A////AP///wD///8A0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQy0ppkutKaZP/SmmT/0ppk/9KaZP/SmmT/0ppk/9KaZP/SmmT/0ppkvtKaZDbSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkAP///wD///8A////AP///wDSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkXNKaZODSmmT/0ppk/9KaZP/SmmT/0ppk5NKaZGDSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA////AP///wD///8A////ANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkBtKaZIbSmmTo0ppk6tKaZIrSmmQK0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZADSmmQA0ppkANKaZAD///8A////AP/8P///+B///+AH//+AAf//AAD//AAAP/AAAA/gAAAHwAAAA8AAAAPAAAADwAAAA8AAAAPAAAADwAAAA8AAAAPAAAADwAAAA8AAAAPAAAADwAAAA8AAAAPAAAADwAAAA+AAAAfwAAAP/AAAP/8AAP//gAH//+AH///4H////D//" rel="icon" />
   
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
 </head>
-<body>
+<body data-syntax-highlighting="on" data-deleted-text="show">
+<form class="view-controls">
+<label for="no-syntax-highlighting-toggle">
+<input id="no-syntax-highlighting-toggle" type="checkbox"></input>
+<span>No syntax highlighting</span>
+</label>
+<label for="hide-deleted-text-toggle">
+<input id="hide-deleted-text-toggle" type="checkbox"></input>
+<span>Hide deleted text</span>
+</label>
+</form>
 <div class="wrapper">
 <header id="title-block-header">
-<h1 class="title" style="text-align:center">Make <code class="sourceCode cpp">std<span class="op">::</span>make_from_tuple</code>
+<h1 class="title" style="text-align:center">Make
+<code class="sourceCode cpp">std<span class="op">::</span>make_from_tuple</code>
 SFINAE friendly</h1>
-<table style="border:none;float:right">
+<table>
   <tr>
     <td>Document #:</td>
     <td>
@@ -436,7 +538,7 @@ SFINAE friendly</h1>
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2026-05-06</td>
+    <td>2026-06-06</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -462,22 +564,18 @@ SFINAE friendly</h1>
 <div id="TOC" role="doc-toc">
 <h1 id="toctitle">Contents</h1>
 <ul>
-<li><a href="#changelog" id="toc-changelog"><span class="toc-section-number">1</span> Changelog<span></span></a>
+<li><a href="#changelog" id="toc-changelog"><span class="toc-section-number">1</span> Changelog</a>
 <ul>
-<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.1</span> R1<span></span></a></li>
-<li><a href="#r0" id="toc-r0"><span class="toc-section-number">1.2</span> R0<span></span></a></li>
+<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.1</span> R1</a></li>
+<li><a href="#r0" id="toc-r0"><span class="toc-section-number">1.2</span> R0</a></li>
 </ul></li>
-<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">2</span> Introduction<span></span></a></li>
-<li><a href="#motivation" id="toc-motivation"><span class="toc-section-number">3</span> Motivation<span></span></a></li>
-<li><a href="#impact-on-the-standard" id="toc-impact-on-the-standard"><span class="toc-section-number">4</span> Impact on the
-Standard<span></span></a></li>
-<li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">5</span> Implementation
-Experience<span></span></a></li>
-<li><a href="#proposed-wording" id="toc-proposed-wording"><span class="toc-section-number">6</span> Proposed
-Wording<span></span></a></li>
-<li><a href="#acknowledgements" id="toc-acknowledgements"><span class="toc-section-number">7</span>
-Acknowledgements<span></span></a></li>
-<li><a href="#references" id="toc-references">References<span></span></a></li>
+<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">2</span> Introduction</a></li>
+<li><a href="#motivation" id="toc-motivation"><span class="toc-section-number">3</span> Motivation</a></li>
+<li><a href="#impact-on-the-standard" id="toc-impact-on-the-standard"><span class="toc-section-number">4</span> Impact on the Standard</a></li>
+<li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">5</span> Implementation Experience</a></li>
+<li><a href="#proposed-wording" id="toc-proposed-wording"><span class="toc-section-number">6</span> Proposed Wording</a></li>
+<li><a href="#acknowledgements" id="toc-acknowledgements"><span class="toc-section-number">7</span> Acknowledgements</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
 </ul>
 </div>
 <h1 data-number="1" id="changelog"><span class="header-section-number">1</span> Changelog<a href="#changelog" class="self-link"></a></h1>
@@ -492,21 +590,18 @@ Acknowledgements<span></span></a></li>
 <code class="sourceCode cpp">std<span class="op">::</span>make_from_tuple</code>
 to make it SFINAE friendly.</p>
 <h1 data-number="3" id="motivation"><span class="header-section-number">3</span> Motivation<a href="#motivation" class="self-link"></a></h1>
-<p><span class="citation" data-cites="LWG3528"><a href="https://wg21.link/lwg3528" role="doc-biblioref">[LWG3528]</a></span> introduce constraints:</p>
-
+<p><span class="citation" data-cites="LWG3528"><a href="https://wg21.link/lwg3528">[LWG3528]</a></span> introduce
+constraints:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> Tuple, <span class="dt">size_t</span><span class="op">...</span> I<span class="op">&gt;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">requires is_constructible_v&lt;T, decltype(get&lt;I&gt;(declval&lt;Tuple&gt;()))...&gt;</code></span></ins></span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default cpp">requires is_constructible_v&lt;T, decltype(get&lt;I&gt;(declval&lt;Tuple&gt;()))...&gt;</code></span></ins></span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> T make<span class="op">-</span>from<span class="op">-</span>tuple<span class="op">-</span>impl<span class="op">(</span>Tuple<span class="op">&amp;&amp;</span> t, index_sequence<span class="op">&lt;</span>I<span class="op">...&gt;)</span> <span class="op">{</span>     <span class="co">// exposition only</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> T<span class="op">(</span>get<span class="op">&lt;</span>I<span class="op">&gt;(</span>std<span class="op">::</span>forward<span class="op">&lt;</span>Tuple<span class="op">&gt;(</span>t<span class="op">))...)</span>;</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-
 <p>When someone write SFINAE code like the following to check whether
-<code class="sourceCode cpp">T</code>
-can constructed from a tuple, they may hit hard errors like “no matching
-function for call to
-<code class="sourceCode cpp">make<span class="op">-</span>from<span class="op">-</span>tuple<span class="op">-</span>impl</code>
-” (<a href="https://godbolt.org/z/qs9aon1oM">Compiler Explorer</a>).</p>
-
+<code class="sourceCode cpp">T</code> can constructed from a tuple, they
+may hit hard errors like “no matching function for call to
+<code class="sourceCode cpp">make<span class="op">-</span>from<span class="op">-</span>tuple<span class="op">-</span>impl</code>”
+(<a href="https://godbolt.org/z/qs9aon1oM">Compiler Explorer</a>).</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">typename</span> T, <span class="kw">typename</span> Tuple, <span class="kw">typename</span> <span class="op">=</span> <span class="dt">void</span><span class="op">&gt;</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span> has_make_from_tuple <span class="op">=</span> <span class="kw">false</span>;</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -519,19 +614,17 @@ function for call to
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> a;</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">static_assert</span><span class="op">(!</span>has_make_from_tuple<span class="op">&lt;</span><span class="dt">int</span> <span class="op">*</span>, std<span class="op">::</span>tuple<span class="op">&lt;</span>A <span class="op">*&gt;&gt;)</span>;</span></code></pre></div>
-
 <p>Even If the effects are <em>Equivalent to</em> calling a constrained
 function, the constraints has not apply to
-<code class="sourceCode cpp">std<span class="op">::</span>make_from_tuple</code>
-.</p>
+<code class="sourceCode cpp">std<span class="op">::</span>make_from_tuple</code>.</p>
 <p>This is somehow unclear when the constraints are not literally
 specified with <em>Constraints</em> in the standard wording
 (<span>16.3.2.4
 <a href="https://wg21.link/structure.specifications">[structure.specifications]</a></span>).
 At least <em>Equivalent to</em> doesn’t propagate every substitution
 failure in immediate context. In the case of
-<code class="sourceCode cpp">make<span class="op">-</span>from<span class="op">-</span>tuple<span class="op">-</span>impl</code>
-, the constraints were introduced via a requires-clause but not literal
+<code class="sourceCode cpp">make<span class="op">-</span>from<span class="op">-</span>tuple<span class="op">-</span>impl</code>,
+the constraints were introduced via a requires-clause but not literal
 <em>Constraints</em>. Some implementors believed the requires-clause
 should be treated same as <em>Constraints</em>, but this is not
 explicitly stated.</p>
@@ -539,89 +632,66 @@ explicitly stated.</p>
 <code class="sourceCode cpp">tuple_size_v<span class="op">&lt;</span>remove_reference_t<span class="op">&lt;</span>Tuple<span class="op">&gt;&gt;</span></code>
 is 1, then
 <code class="sourceCode cpp">reference_constructs_from_temporary_v<span class="op">&lt;</span>T, <span class="kw">decltype</span><span class="op">(</span>get<span class="op">&lt;</span><span class="dv">0</span><span class="op">&gt;(</span>declval<span class="op">&lt;</span>Tuple<span class="op">&gt;()))&gt;</span></code>
-is
-<code class="sourceCode cpp"><span class="kw">false</span></code>
-” to a <em>Constraints</em>; this would yield similar benefits for the
+is <code class="sourceCode cpp"><span class="kw">false</span></code>” to
+a <em>Constraints</em>; this would yield similar benefits for the
 following example:</p>
-
 <div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">static_assert</span><span class="op">(!</span>has_make_from_tuple<span class="op">&lt;</span><span class="kw">const</span> <span class="dt">int</span> <span class="op">&amp;</span>, std<span class="op">::</span>tuple<span class="op">&lt;</span><span class="dt">short</span><span class="op">&gt;&gt;)</span>;</span></code></pre></div>
-
 <h1 data-number="4" id="impact-on-the-standard"><span class="header-section-number">4</span> Impact on the Standard<a href="#impact-on-the-standard" class="self-link"></a></h1>
 <p>This proposal is a pure library improvement for the current
-specification <span class="citation" data-cites="N4944"><a href="https://wg21.link/n4944" role="doc-biblioref">[N4944]</a></span>.</p>
+specification <span class="citation" data-cites="N4944"><a href="https://wg21.link/n4944">[N4944]</a></span>.</p>
 <h1 data-number="5" id="implementation-experience"><span class="header-section-number">5</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
-<p>I’ve partial implemented this improvement in <a href="https://github.com/llvm/llvm-project/pull/85263">
-<code class="sourceCode cpp">libc<span class="op">++</span></code>
-</a>, <a href="https://github.com/microsoft/STL/pull/4528">
-<code class="sourceCode cpp">microsoft<span class="op">/</span>STL</code>
-</a>, <a href="https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=73edc003c0a8f0badc7027e6deefd3a573300b03">
-<code class="sourceCode cpp">libstdc<span class="op">++</span></code>
-</a>.</p>
+<p>I’ve partial implemented this improvement in <a href="https://github.com/llvm/llvm-project/pull/85263"><code class="sourceCode cpp">libc<span class="op">++</span></code></a>,
+<a href="https://github.com/microsoft/STL/pull/4528"><code class="sourceCode cpp">microsoft<span class="op">/</span>STL</code></a>,
+<a href="https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=73edc003c0a8f0badc7027e6deefd3a573300b03"><code class="sourceCode cpp">libstdc<span class="op">++</span></code></a>.</p>
 <p>The constraints “If
 <code class="sourceCode cpp">tuple_size_v<span class="op">&lt;</span>remove_reference_t<span class="op">&lt;</span>Tuple<span class="op">&gt;&gt;</span></code>
 is 1, then
 <code class="sourceCode cpp">reference_constructs_from_temporary_v<span class="op">&lt;</span>T, <span class="kw">decltype</span><span class="op">(</span>get<span class="op">&lt;</span><span class="dv">0</span><span class="op">&gt;(</span>declval<span class="op">&lt;</span>Tuple<span class="op">&gt;()))&gt;</span></code>
-is
-<code class="sourceCode cpp"><span class="kw">false</span></code>
-” was not implemented in these libraries.</p>
+is <code class="sourceCode cpp"><span class="kw">false</span></code>”
+was not implemented in these libraries.</p>
 <h1 data-number="6" id="proposed-wording"><span class="header-section-number">6</span> Proposed Wording<a href="#proposed-wording" class="self-link"></a></h1>
 <p>Modify section 22.4.6 <span>22.4.6
 <a href="https://wg21.link/tuple.apply">[tuple.apply]</a></span> as
 indicated:</p>
-
 <div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> T, tuple<span class="op">-</span>like Tuple<span class="op">&gt;</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a> <span class="kw">constexpr</span> T make_from_tuple<span class="op">(</span>Tuple<span class="op">&amp;&amp;</span> t<span class="op">)</span>;</span></code></pre></div>
-
 <div class="rm" style="color: #bf0303">
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span>
 <em>Mandates</em>: If
-<code class="sourceCode default">tuple_size_v&lt;remove_reference_t&lt;Tuple&gt;&gt;</code>
+<code class="sourceCode default cpp">tuple_size_v&lt;remove_reference_t&lt;Tuple&gt;&gt;</code>
 is 1, then
-<code class="sourceCode default">reference_constructs_from_temporary_v&lt;T, decltype(get&lt;0&gt;(declval&lt;Tuple&gt;()))&gt;</code>
-is
-<code class="sourceCode default">false</code>
-.</p>
+<code class="sourceCode default cpp">reference_constructs_from_temporary_v&lt;T, decltype(get&lt;0&gt;(declval&lt;Tuple&gt;()))&gt;</code>
+is <code class="sourceCode default cpp">false</code>.</p>
 </div>
 <div class="add" style="color: #006e28">
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span>
-Let
-<code class="sourceCode default">I</code>
-be the pack
-<code class="sourceCode default">0, 1, ..., (tuple_size_v&lt;remove_reference_t&lt;Tuple&gt;&gt; - 1)</code>
-.</p>
+Let <code class="sourceCode default cpp">I</code> be the pack
+<code class="sourceCode default cpp">0, 1, ..., (tuple_size_v&lt;remove_reference_t&lt;Tuple&gt;&gt; - 1)</code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">3</a></span>
 <em>Constraints</em>:</p>
 <ul>
-<li>
-<code class="sourceCode default">is_constructible_v&lt;T, decltype(get&lt;I&gt;(declval&lt;Tuple&gt;()))...&gt;</code>
-is
-<code class="sourceCode default">true</code>
-.</li>
+<li><code class="sourceCode default cpp">is_constructible_v&lt;T, decltype(get&lt;I&gt;(declval&lt;Tuple&gt;()))...&gt;</code>
+is <code class="sourceCode default cpp">true</code>.</li>
 <li>If
-<code class="sourceCode default">tuple_size_v&lt;remove_reference_t&lt;Tuple&gt;&gt;</code>
+<code class="sourceCode default cpp">tuple_size_v&lt;remove_reference_t&lt;Tuple&gt;&gt;</code>
 is 1, then
-<code class="sourceCode default">reference_constructs_from_temporary_v&lt;T, decltype(get&lt;0&gt;(declval&lt;Tuple&gt;()))&gt;</code>
-is
-<code class="sourceCode default">false</code>
-.</li>
+<code class="sourceCode default cpp">reference_constructs_from_temporary_v&lt;T, decltype(get&lt;0&gt;(declval&lt;Tuple&gt;()))&gt;</code>
+is <code class="sourceCode default cpp">false</code>.</li>
 </ul>
 
 </div>
 <p><em>Effects</em>: Given the exposition-only function template:</p>
-
 <div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std <span class="op">{</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> T, tuple<span class="op">-</span>like Tuple, <span class="dt">size_t</span><span class="op">...</span> I<span class="op">&gt;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">requires is_constructible_v&lt;T, decltype(get&lt;I&gt;(declval&lt;Tuple&gt;()))...&gt;</code></span></del></span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">requires is_constructible_v&lt;T, decltype(get&lt;I&gt;(declval&lt;Tuple&gt;()))...&gt; &amp;&amp;</code></span></ins></span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>             <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">tuple_size_v&lt;std::remove_reference_t&lt;_Tuple&gt;&gt; == 1 &amp;&amp;</code></span></ins></span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>             <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">!reference_constructs_from_temporary_v&lt;T, decltype(get&lt;0&gt;(declval&lt;Tuple&gt;()))&gt;</code></span></ins></span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default cpp">requires is_constructible_v&lt;T, decltype(get&lt;I&gt;(declval&lt;Tuple&gt;()))...&gt;</code></span></del></span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default cpp">requires is_constructible_v&lt;T, decltype(get&lt;I&gt;(declval&lt;Tuple&gt;()))...&gt; &amp;&amp;</code></span></ins></span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>             <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default cpp">tuple_size_v&lt;std::remove_reference_t&lt;_Tuple&gt;&gt; == 1 &amp;&amp;</code></span></ins></span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>             <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default cpp">!reference_constructs_from_temporary_v&lt;T, decltype(get&lt;0&gt;(declval&lt;Tuple&gt;()))&gt;</code></span></ins></span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> T make<span class="op">-</span>from<span class="op">-</span>tuple<span class="op">-</span>impl<span class="op">(</span>Tuple<span class="op">&amp;&amp;</span> t, index_sequence<span class="op">&lt;</span>I<span class="op">...&gt;)</span> <span class="op">{</span>   <span class="co">// exposition only</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> T<span class="op">(</span>get<span class="op">&lt;</span>I<span class="op">&gt;(</span>std<span class="op">::</span>forward<span class="op">&lt;</span>Tuple<span class="op">&gt;(</span>t<span class="op">))...)</span>;</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-
 <p><em>Equivalent to</em>:</p>
-
 <div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> make<span class="op">-</span>from<span class="op">-</span>tuple<span class="op">-</span>impl<span class="op">&lt;</span>T<span class="op">&gt;(</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>           std<span class="op">::</span>forward<span class="op">&lt;</span>Tuple<span class="op">&gt;(</span>t<span class="op">)</span>,</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>           make_index_sequence<span class="op">&lt;</span>tuple_size_v<span class="op">&lt;</span>remove_reference_t<span class="op">&lt;</span>Tuple<span class="op">&gt;&gt;&gt;{})</span>;</span></code></pre></div>
@@ -634,17 +704,31 @@ Lavavej, Jonathan Wakely, Barry Revzin, Daniel Krügler, and everyone
 else who contributed to the discussions, and encouraged me to write this
 paper.</p>
 <h1 class="unnumbered" id="references">References<a href="#references" class="self-link"></a></h1>
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="1" role="doc-bibliography">
-<div id="ref-LWG3528" class="csl-entry" role="doc-biblioentry">
+<div id="refs" class="references csl-bib-body" data-entry-spacing="0" role="list">
+<div id="ref-LWG3528" class="csl-entry" role="listitem">
 [LWG3528] Tim Song. make_from_tuple can perform (the equivalent of) a
-C-style cast. <a href="https://wg21.link/lwg3528"><div class="csl-block">https://wg21.link/lwg3528</div></a>
+C-style cast. <a href="https://wg21.link/lwg3528"><div class="csl-indent">https://wg21.link/lwg3528</div></a>
 </div>
-<div id="ref-N4944" class="csl-entry" role="doc-biblioentry">
+<div id="ref-N4944" class="csl-entry" role="listitem">
 [N4944] Thomas Köppe. 2023-03-22. Working Draft, Standard for
-Programming Language C++. <a href="https://wg21.link/n4944"><div class="csl-block">https://wg21.link/n4944</div></a>
+Programming Language C++. <a href="https://wg21.link/n4944"><div class="csl-indent">https://wg21.link/n4944</div></a>
 </div>
 </div>
 </div>
 </div>
+<script>
+const body = document.body;
+const noSyntaxHighlightingCheckbox = document.getElementById('no-syntax-highlighting-toggle');
+noSyntaxHighlightingCheckbox.checked = false;
+noSyntaxHighlightingCheckbox.addEventListener('change', () => {
+  body.dataset.syntaxHighlighting = noSyntaxHighlightingCheckbox.checked ? 'off' : 'on';
+});
+
+const hideDeletedTextCheckbox = document.getElementById('hide-deleted-text-toggle');
+hideDeletedTextCheckbox.checked = false;
+hideDeletedTextCheckbox.addEventListener('change', () => {
+  body.dataset.deletedText = hideDeletedTextCheckbox.checked ? 'hide' : 'show';
+});
+</script>
 </body>
 </html>
