@@ -72,10 +72,14 @@ Various compositions in compact list:
   - _foo `constexpr`{.cpp} bar_
   - ~~foo `constexpr`{.cpp} bar~~
   - [`hello world`]{.add}
+  - `@[hello<T>]{.add}@`
   - ~~_`hello world`_~~
   - ~~`hello world`~~
   - `namespace $unspecified$ { struct sender_base {}; }`
   - `namespace $unspecified$ { struct sender_base {}; }`{.cpp}
+  - `constexpr$~opt~$`{.cpp}
+  - ==highlighted==
+  - `void @==foo==@();`{.cpp}
 
 ---
 
@@ -106,7 +110,7 @@ const int x = 0B01011;
 bool b = true;
 
 struct process {
-  hello @[constexpr]{.rm}@ detail::foo::template $foo$;
+  hello @[constexpr\ ]{.rm}@detail::foo::template $foo$;
 
   [[using CC: opt(1), debug]] x;
 
@@ -146,7 +150,7 @@ const int x = 0B01011;
 bool b = true;
 
 struct process {
-  hello @[constexpr]{.add}@ detail::foo::template foo;
+  hello @[constexpr\ ]{.add}@detail::foo::template foo;
 
   [[using CC: opt(1), debug]] x;
 
@@ -179,11 +183,11 @@ std::visit<void>(process{}, input);
 @@[`namespace @_unspecified_@ { struct sender_base {}; }`]{.add}@@
 @@[`using @_unspecified_@::sender_base;`]{.add}@@
 
-template <@[invocable]{.rm}[class]{.add}@ F@[, class]{.add}@>
-struct @_as-receiver_@ {
+template <@[invocable](class){.sub}@ F@[, class]{.add}@>
+struct $as-receiver$ {
 @[private:]{.rm}@
   @[using invocable_type = std::remove_cvref_t<F>;]{.rm}@
-  @[invocable_type]{.rm}[F]{.add}@ f_;
+  @[invocable_type](F){.sub}@ f_;
 @[public:]{.rm}@
   @[explicit _as-receiver_(invocable_type&& f)]{.rm}@
   @[_as-receiver_(_as-receiver_&& other) = default;]{.rm}@
@@ -196,11 +200,11 @@ struct @_as-receiver_@ {
   void set_done() noexcept {}
 };
 
-template <@[`invocable`]{.rm}[`class`]{.add}@ F@[`, class`]{.add}@>
-struct @_as-receiver_@ {
+template <@[`invocable`](`class`){.sub}@ F@[`, class`]{.add}@>
+struct $as-receiver$ {
 @[`private:`]{.rm}@
   @[`using invocable_type = std::remove_cvref_t<F>;`]{.rm}@
-  @[`invocable_type`]{.rm}[`F`]{.add}@ f_;
+  @[`invocable_type`](`F`){.sub}@ f_;
 @[`public:`]{.rm}@
   @@[`explicit @_as-receiver_@(invocable_type&& f)`]{.rm}@@
   @@[`@_as-receiver_@(@_as-receiver_@&& other) = default;`]{.rm}@@
@@ -213,7 +217,7 @@ struct @_as-receiver_@ {
   void set_done() noexcept {}
 };
 
-void f(@@[`int *const *@_p~i~_@`]{.add}@@);
+void f(@[int \*const \*_p~i~_]{.add}@);
 ```
 
 ### `diff` Syntax Highlighting
@@ -255,7 +259,7 @@ and renders as [](#auto-header-links).
 
 ::: cmptable
 
-> Put your caption here
+> Put your caption here with some `code`
 
 ### Before
 ```cpp
@@ -321,16 +325,135 @@ inspect (s) {
 
 # Proposed Wording
 
-## Paragraph Numbers
+## Manual Paragraph Numbers
 
 [2]{.pnum} An expression is _potentially evaluated_ unless it is an unevaluated
 operand (7.2) or a subexpression thereof. The set of _potential results_ of
 an expression `e` is defined as follows:
 
-  - [2.1]{.pnum} If `e` is an _id-expression_ (7.5.4), the set contains only `e`.
-
+  - [2.1]{.pnum} If `e` is an `$id-expression$` (7.5.4), the set contains only `e`.
   - [2.2]{.pnum} If `e` is a subscripting operation (7.6.1.1) with an array operand,
-the set contains the potential results of that operand.
+    the set contains the potential results of that operand.
+
+## Automatic Paragraph Numbers
+
+::: wording
+#. `#.`{.default} automatically starts at `1`.
+#. Another `#.`{.default} automatically continues to `2`.
+   - Nested bullet list also get automatic numbering. `(2.1)`.
+
+     [...]
+
+   5. Example of skipping. Pin to `5.`{.default}, yields `(2.5)`.
+   - Continues to `(2.6)`.
+     - Nested nested bullet list should just work `(2.6.1)`{.default}.
+
+       [...]
+
+     9. `9.`{.default} here will bring us to `(2.6.9)`{.default}.
+     x) `x)`{.default} here will be `(2.6.x)`{.default}.
+     x) Another `x)`{.default} here will also be `(2.6.x)`{.default}.
+#. `#.`{.default} automatically continues to `3`.
+
+   Also handle code blocks within a list item:
+   ```cpp
+   int main();
+   ```
+x) Use `x)`{.default} to skip a paragraph number.
+x) Another `x)`{.default} assigned `x`.
+#. `#.`{.default} automatically continues to `4`.
+
+[...]
+
+17. Pin with `17.`{.default}.
+
+::: add
+x) `x)`{.default} is mainly to skip numbering in `add`.
+   - Nested bullet within an `x)`. This will be (x.1).
+   x) Nested `x)` within an `x)`. This will be (x.x).
+x) Second added paragraph.
+:::
+
+::: rm
+#. `#.`{.default} here will be 18 after the skips.
+
+[...]
+
+24. Skip and pin again, e.g. `24.`{.default}.
+:::
+
+#. Automatically continue to 25.
+:::
+
+---
+
+::: wording
+
+### General [intro.compliance.general]{.sref} {-}
+
+1. The set of _diagnosable rules_ consists of all syntactic and semantic rules
+   in this document except for those rules containing an explicit notation that
+   "no diagnostic is required" or which are described as resulting in "undefined behavior".
+
+#. Although this document states only requirements on C++ implementations, those
+   requirements are often easier to understand if they are phrased as requirements
+   on programs, parts of programs, or execution of programs. Such requirements have
+   the following meaning:
+
+   - If a program contains no violations of the rules in [lex]{- .sref} through
+     [exec]{- .sref} as well as those specified in [depr]{- .sref}, a conforming
+     implementation shall accept and correctly execute that program, except when
+     the implementation's limitations (see below) are exceeded.
+   - If a program contains a violation of a rule for which no diagnostic is required,
+     this document places no requirement on implementations with respect to that program.
+   - Otherwise, if a program contains
+     - a violation of any diagnosable rule,
+     - a preprocessing translation unit with a `#warning` preprocessing directive
+       ([cpp.error]{- .sref}),
+     - an occurrence of a construct described in this document as “conditionally-supported”
+       when the implementation does not support that construct, or
+     - a contract assertion ([basic.contract.eval]{- .sref}) evaluated with
+       a checking semantic in a manifestly constant-evaluated context
+       ([expr.const.defns]{- .sref}) resulting in a contract violation,
+
+     a conforming implementation shall issue at least one diagnostic message.
+
+   [During template argument deduction and substitution, certain constructs that
+   in other contexts require a diagnostic are treated differently;
+   see [temp.deduct]{- .sref}.]{.note}
+
+   Furthermore, a conforming implementation shall not accept
+     - a preprocessing translation unit containing a `#error` preprocessing
+       directive ([cpp.error]{- .sref}),
+     - a translation unit with a `$static_assert-declaration$` that
+       fails ([dcl.pre]{- .sref}), or
+     - a contract assertion evaluated with a terminating semantic
+       ([basic.contract.eval]{- .sref}) in a manifestly constant-evaluated context
+       ([expr.const.defns]{- .sref}) resulting in a contract violation.
+
+#. For classes and class templates, the library Clauses specify partial definitions.
+   Private members are not specified, but each implementation shall supply them to complete
+   the definitions according to the description in the library Clauses.
+
+### Diagnostic directives [cpp.error]{.sref} {-}
+
+1. A preprocessing directive of the form
+
+   > ```cpp
+   > # error $pp-tokens~opt~$ $new-line$
+   > ```
+
+   renders the program ill-formed. A preprocessing directive of the form
+
+   > ```cpp
+   > # warning $pp-tokens~opt~$ $new-line$
+   > ```
+
+   requires the implementation to produce at least one diagnostic message for
+   the preprocessing translation unit ([intro.compliance.general]{- .sref}).
+
+#. _Recommended practice_: Any diagnostic message caused by either of these directives should include the specified sequence of preprocessing tokens.
+:::
 
 ## Wording Changes
 
@@ -349,12 +472,16 @@ Large changes are `::: add` for additions, `::: rm` for removals.
 >
 > :::
 
-Small, inline changes are done with `[new text]{.add}` or `[old text]{.rm}`.
+Small, inline changes are done with `[new text]{.add}`{.default} or
+`[old text]{.rm}`{.default}.
 
-The optional _attribute-specifier-seq_ appertains to the [label]{.rm}[_general-label_]{.add}.
-The only use of a [label with an _identifier_]{.rm}[_label_]{.add} is as the target of a `goto`,
-[`break`, or `continue`]{.add}. No two [label]{.rm}[_label_]{.add}s in a function shall have
-the same _identifier_. A [label]{.rm}[_general-label_]{.add} can be used [in a `goto` statement]{.rm}
+Substitutions can be written as `[old text](new text){.sub}`{.default}.
+This is essentially just a short-form for `[old text]{.rm}[new text]{.add}`{.default}.
+
+The optional _attribute-specifier-seq_ appertains to the [label](_general-label_){.sub}.
+The only use of a [label with an _identifier_](_label_){.sub} is as the target of a `goto`,
+[`break`, or `continue`]{.add}. No two [label](_label_){.sub}s in a function shall have
+the same _identifier_. A [label](_general-label_){.sub} can be used [in a `goto` statement]{.rm}
 before its introduction by a _labeled-statement_.
 
 +-----------+--------------------------------------------------------------------+

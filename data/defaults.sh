@@ -9,12 +9,17 @@
 
 : "${DATADIR:?Set 'DATADIR' to the absolute path to the data directory.}"
 
+# +mark for == syntax for highlighted text
+FROM=markdown+mark
+
 cat <<EOF
 number-sections: true
 table-of-contents: true
 self-contained: true
 
 data-dir: ${DATADIR}
+
+from: ${FROM}
 
 filters:
   - citetitle.py
@@ -25,11 +30,13 @@ template: wg21
 
 css:
   - ${DATADIR}/templates/14882.css
+  - ${DATADIR}/templates/wg21.css
 
 pdf-engine: xelatex
 
 metadata:
   datadir: ${DATADIR}
+  from: ${FROM}
   csl: ${DATADIR}/csl/wg21.csl
   highlighting:
     inline-code:

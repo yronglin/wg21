@@ -11,11 +11,11 @@ override HTML := $(SRC:.md=.html)
 override LATEX := $(SRC:.md=.latex)
 override PDF := $(SRC:.md=.pdf)
 
-override ROOTDIR := $(dir $(lastword $(MAKEFILE_LIST)))
+override ROOTDIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
-override DEPSDIR := $(ROOTDIR)deps
+override DEPSDIR := $(ROOTDIR)/deps
 
-override PANDOC_VER := 2.18
+override PANDOC_VER := 3.9.0.2
 override PANDOC_DIR := $(DEPSDIR)/pandoc/$(PANDOC_VER)
 override PYTHON_DIR := $(DEPSDIR)/python
 override PYTHON_BIN := $(PYTHON_DIR)/bin/python3
@@ -23,7 +23,7 @@ override PYTHON_BIN := $(PYTHON_DIR)/bin/python3
 export SHELL := bash
 export PATH := $(PANDOC_DIR):$(PYTHON_DIR)/bin:$(PATH)
 
-override DATADIR := $(ROOTDIR)data
+override DATADIR := $(ROOTDIR)/data
 
 override define PANDOC
 $(eval override FILE := $(filter %.md, $^))
@@ -57,7 +57,7 @@ pdf: $(PDF)
 ifneq ($(SRCDIR), $(OUTDIR))
 .PHONY: clean
 clean:
-	rm -rf $(DEPSDIR)/pandoc $(GENDEPS) $(OUTDIR)
+	rm -rf $(DEPSDIR)/pandoc $(DEPSDIR)/python $(GENDEPS) $(OUTDIR)
 
 .PHONY: $(HTML) $(LATEX) $(PDF)
 $(HTML) $(LATEX) $(PDF): $(SRCDIR)/%: $(OUTDIR)/%
@@ -70,23 +70,26 @@ update:
 $(OUTDIR):
 	mkdir -p $@
 
-$(PANDOC_DIR):
-	PANDOC_VER=$(PANDOC_VER) PANDOC_DIR=$@ $(DEPSDIR)/install-pandoc.sh
+$(PANDOC_DIR): $(DEPSDIR)/install-pandoc.sh
+	PANDOC_VER=$(PANDOC_VER) PANDOC_DIR=$(PANDOC_DIR) $(DEPSDIR)/install-pandoc.sh
 
-$(PYTHON_DIR): $(DEPSDIR)/requirements.txt $(REQUIREMENTS)
-	python3 -m venv $(PYTHON_DIR)
-	$@/bin/pip3 install --upgrade pip -r $(DEPSDIR)/requirements.txt
-	if [ -n "$(REQUIREMENTS)" ]; then $@/bin/pip3 install --upgrade pip -r $(REQUIREMENTS); fi
-	touch $(PYTHON_DIR)
+$(PYTHON_DIR): $(DEPSDIR)/install-venv.sh $(DEPSDIR)/requirements.txt $(REQUIREMENTS)
+	PYTHON_DIR=$(PYTHON_DIR) $(DEPSDIR)/install-venv.sh -r $(DEPSDIR)/requirements.txt $(addprefix -r ,$(REQUIREMENTS))
 
 $(DATADIR)/defaults.yaml: $(DATADIR)/defaults.sh
 	DATADIR=$(abspath $(DATADIR)) $< > $@
 
 $(DATADIR)/csl.json: $(DATADIR)/refs.py $(PYTHON_DIR)
-	$(PYTHON_BIN) $< > $@
+	set -e; trap 'rm -f "$@"' EXIT; $(PYTHON_BIN) $< > "$@"; trap - EXIT
 
 $(DATADIR)/annex-f:
-	curl -sSL https://timsong-cpp.github.io/cppwp/annex-f -o $@
+	set -e; trap 'rm -f "$@"' EXIT; curl -fsSL https://timsong-cpp.github.io/cppwp/annex-f -o "$@"; trap - EXIT
 
-$(OUTDIR)/%.html $(OUTDIR)/%.latex $(OUTDIR)/%.pdf: $(SRCDIR)/%.md $(SRCDEPS) $(GENDEPS) | $(OUTDIR)
+$(OUTDIR)/%.html: $(SRCDIR)/%.md $(SRCDEPS) $(GENDEPS) | $(OUTDIR)
+	$(PANDOC) --bibliography $(DATADIR)/csl.json
+
+$(OUTDIR)/%.latex: $(SRCDIR)/%.md $(SRCDEPS) $(GENDEPS) | $(OUTDIR)
+	$(PANDOC) --bibliography $(DATADIR)/csl.json
+
+$(OUTDIR)/%.pdf: $(SRCDIR)/%.md $(SRCDEPS) $(GENDEPS) | $(OUTDIR)
 	$(PANDOC) --bibliography $(DATADIR)/csl.json
