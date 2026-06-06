@@ -638,30 +638,30 @@ individual dimensions need to be extracted:</p>
 <tr>
 <td><div>
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>mdspan<span class="op">&lt;</span><span class="dt">double</span>,</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    std<span class="op">::</span>extents<span class="op">&lt;</span>I, I1, I2, I3<span class="op">&gt;</span>, L, A<span class="op">&gt;</span> mdspan;</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> e <span class="op">=</span> mdspan<span class="op">.</span>extents<span class="op">()</span>;</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span>I z <span class="op">=</span> <span class="dv">0</span>; z <span class="op">&lt;</span> e<span class="op">.</span>extent<span class="op">(</span><span class="dv">2</span><span class="op">)</span>; z<span class="op">++)</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>I y <span class="op">=</span> <span class="dv">0</span>; y <span class="op">&lt;</span> e<span class="op">.</span>extent<span class="op">(</span><span class="dv">1</span><span class="op">)</span>; y<span class="op">++)</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span>I x <span class="op">=</span> <span class="dv">0</span>; x <span class="op">&lt;</span> e<span class="op">.</span>extent<span class="op">(</span><span class="dv">0</span><span class="op">)</span>; x<span class="op">++)</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            mdspan<span class="op">[</span>z, y, x<span class="op">]</span> <span class="op">=</span> <span class="fl">42.0</span>;</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>std::mdspan&lt;double,</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    std::extents&lt;I, I1, I2, I3&gt;, L, A&gt; mdspan;</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>const auto&amp; e = mdspan.extents();</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>for (I z = 0; z &lt; e.extent(2); z++)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    for (I y = 0; y &lt; e.extent(1); y++)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        for (I x = 0; x &lt; e.extent(0); x++)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            mdspan[z, y, x] = 42.0;</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> <span class="kw">auto</span> total <span class="op">=</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    e<span class="op">.</span>extent<span class="op">(</span><span class="dv">0</span><span class="op">)</span> <span class="op">*</span> e<span class="op">.</span>extent<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">*</span> e<span class="op">.</span>extent<span class="op">(</span><span class="dv">2</span><span class="op">)</span>;</span></code></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>const auto total =</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    e.extent(0) * e.extent(1) * e.extent(2);</span></code></pre></div>
 
 </div></td>
 <td><div>
 
-<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>mdspan<span class="op">&lt;</span><span class="dt">double</span>,</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    std<span class="op">::</span>extents<span class="op">&lt;</span>I, I1, I2, I3<span class="op">&gt;</span>, L, A<span class="op">&gt;</span> mdspan;</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> <span class="kw">auto</span> <span class="op">[</span>depth, height, width<span class="op">]</span> <span class="op">=</span> mdspan<span class="op">.</span>extents<span class="op">()</span>;</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span>I z <span class="op">=</span> <span class="dv">0</span>; z <span class="op">&lt;</span> depth; z<span class="op">++)</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>I y <span class="op">=</span> <span class="dv">0</span>; y <span class="op">&lt;</span> height; y<span class="op">++)</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span>I x <span class="op">=</span> <span class="dv">0</span>; x <span class="op">&lt;</span> width; x<span class="op">++)</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            mdspan<span class="op">[</span>z, y, x<span class="op">]</span> <span class="op">=</span> <span class="fl">42.0</span>;</span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>std::mdspan&lt;double,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    std::extents&lt;I, I1, I2, I3&gt;, L, A&gt; mdspan;</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>const auto [depth, height, width] = mdspan.extents();</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>for (I z = 0; z &lt; depth; z++)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    for (I y = 0; y &lt; height; y++)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        for (I x = 0; x &lt; width; x++)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            mdspan[z, y, x] = 42.0;</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> <span class="kw">auto</span> total <span class="op">=</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    width <span class="op">*</span> height <span class="op">*</span> depth;</span></code></pre></div>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>const auto total =</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    width * height * depth;</span></code></pre></div>
 
 </div></td>
 </tr>
@@ -673,12 +673,12 @@ for the extents to improve readability.</p>
 <p>The proposed feature becomes even more powerful in combination with
 <span class="citation" data-cites="P1061R10"><a href="https://wg21.link/p1061r10">[P1061R10]</a></span> (adopted into
 C++26), which allows structured bindings to introduce a pack:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>mdspan<span class="op">&lt;</span><span class="dt">double</span>, std<span class="op">::</span>extents<span class="op">&lt;</span>I, Is<span class="op">...&gt;</span>, L, A<span class="op">&gt;</span> mdspan;</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> <span class="kw">auto</span> <span class="op">[...</span>es<span class="op">]</span> <span class="op">=</span> mdspan<span class="op">.</span>extents<span class="op">()</span>;</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span> <span class="op">[...</span>is<span class="op">]</span> <span class="op">:</span> std<span class="op">::</span>views<span class="op">::</span>cartesian_product<span class="op">(</span>std<span class="op">::</span>views<span class="op">::</span>iota<span class="op">(</span><span class="dv">0</span>, es<span class="op">)...))</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    mdspan<span class="op">[</span>is<span class="op">...]</span> <span class="op">=</span> <span class="fl">42.0</span>;</span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>std::mdspan&lt;double, std::extents&lt;I, Is...&gt;, L, A&gt; mdspan;</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>const auto [...es] = mdspan.extents();</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>for (const auto [...is] : std::views::cartesian_product(std::views::iota(0, es)...))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    mdspan[is...] = 42.0;</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> <span class="kw">auto</span> total <span class="op">=</span> <span class="op">(</span>es <span class="op">*</span> <span class="op">...)</span>;</span></code></pre></div>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>const auto total = (es * ...);</span></code></pre></div>
 <p>In this example, we trade readability for generality. Destructuring
 the extents into a pack allows us to expand the extents again into a
 series of <code class="sourceCode cpp">iota</code> views, which we can
@@ -776,37 +776,48 @@ or a
 <code class="sourceCode cpp">std<span class="op">::</span>constant_wrapper</code>
 whose value is the static extent cast to
 <code class="sourceCode cpp">IndexType</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std <span class="op">{</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="dt">size_t</span> I, <span class="kw">typename</span> IndexType, <span class="dt">size_t</span><span class="op">...</span> Extents<span class="op">&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> get<span class="op">(</span><span class="kw">const</span> extents<span class="op">&lt;</span>IndexType, Extents<span class="op">...&gt;&amp;</span> e<span class="op">)</span> <span class="kw">noexcept</span> <span class="op">{</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>extents<span class="op">&lt;</span>IndexType, Extents<span class="op">...&gt;::</span>static_extent<span class="op">(</span>I<span class="op">)</span> <span class="op">==</span> dynamic_extent<span class="op">)</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> e<span class="op">.</span>extent<span class="op">(</span>I<span class="op">)</span>;</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> constant_wrapper<span class="op">&lt;</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                <span class="kw">static_cast</span><span class="op">&lt;</span>IndexType<span class="op">&gt;(</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                    extents<span class="op">&lt;</span>IndexType, Extents<span class="op">...&gt;::</span>static_extent<span class="op">(</span>I<span class="op">))&gt;{}</span>;</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">typename</span> IndexType, std<span class="op">::</span><span class="dt">size_t</span><span class="op">...</span> Extents<span class="op">&gt;</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> tuple_size<span class="op">&lt;</span>extents<span class="op">&lt;</span>IndexType, Extents<span class="op">...&gt;&gt;</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">:</span> std<span class="op">::</span>integral_constant<span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span>, <span class="kw">sizeof</span><span class="op">...(</span>Extents<span class="op">)&gt;</span> <span class="op">{}</span>;</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> I, <span class="kw">typename</span> IndexType, std<span class="op">::</span><span class="dt">size_t</span><span class="op">...</span> Extents<span class="op">&gt;</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> tuple_element<span class="op">&lt;</span>I, extents<span class="op">&lt;</span>IndexType, Extents<span class="op">...&gt;&gt;</span> <span class="op">{</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="kw">using</span> type <span class="op">=</span> <span class="kw">decltype</span><span class="op">(</span>get<span class="op">&lt;</span>I<span class="op">&gt;(</span>declval<span class="op">&lt;</span>std<span class="op">::</span>extents<span class="op">&lt;</span>IndexType, Extents<span class="op">...&gt;&gt;()))</span>;</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span>;</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> I, <span class="kw">typename</span> IndexType, std<span class="op">::</span><span class="dt">size_t</span><span class="op">...</span> Extents<span class="op">&gt;</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> tuple_element<span class="op">&lt;</span>I, <span class="kw">const</span> extents<span class="op">&lt;</span>IndexType, Extents<span class="op">...&gt;&gt;</span> <span class="op">{</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="kw">using</span> type <span class="op">=</span> <span class="kw">decltype</span><span class="op">(</span>std<span class="op">::</span>get<span class="op">&lt;</span>I<span class="op">&gt;(</span>declval<span class="op">&lt;</span>std<span class="op">::</span>extents<span class="op">&lt;</span>IndexType, Extents<span class="op">...&gt;&gt;()))</span>;</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span>;</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>namespace std {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    template &lt;size_t I, typename IndexType, size_t... Extents&gt;</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    constexpr tuple_element_t&lt;I, extents&lt;IndexType, Extents...&gt;&gt;</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    get(const extents&lt;IndexType, Extents...&gt;&amp; e) noexcept {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        if constexpr (extents&lt;IndexType, Extents...&gt;::static_extent(I) == dynamic_extent)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>            return e.extent(I);</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        else</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>            return constant_wrapper&lt;</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                static_cast&lt;IndexType&gt;(</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                    extents&lt;IndexType, Extents...&gt;::static_extent(I))&gt;{};</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    template &lt;typename IndexType, std::size_t... Extents&gt;</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    struct tuple_size&lt;extents&lt;IndexType, Extents...&gt;&gt;</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        : std::integral_constant&lt;std::size_t, sizeof...(Extents)&gt; {};</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    template&lt;size_t I, class IndexType, size_t... Extents&gt;</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    struct tuple_element&lt;I, extents&lt;IndexType, Extents...&gt;&gt; {</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    using type = conditional_t&lt;</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        extents&lt;IndexType, Extents...&gt;::static_extent(I) == dynamic_extent,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        IndexType,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        constant_wrapper&lt;</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        static_cast&lt;IndexType&gt;(</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>            extents&lt;IndexType, Extents...&gt;::static_extent(I))&gt;&gt;;</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    };</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    template&lt;size_t I, class IndexType, size_t... Extents&gt;</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    struct tuple_element&lt;I, const extents&lt;IndexType, Extents...&gt;&gt; {</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    using type = conditional_t&lt;</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        extents&lt;IndexType, Extents...&gt;::static_extent(I) == dynamic_extent,</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        IndexType,</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        constant_wrapper&lt;</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        static_cast&lt;IndexType&gt;(</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>            extents&lt;IndexType, Extents...&gt;::static_extent(I))&gt;&gt;;</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    };</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>} // namespace std</span></code></pre></div>
 <p>An example of such an implementation using libstdc++/libc++ trunk’s
 implementation of
 <code class="sourceCode cpp"><span class="op">&lt;</span>mdspan<span class="op">&gt;</span></code>
 with
 <code class="sourceCode cpp"><span class="op">-</span>std<span class="op">=</span>c<span class="op">++</span><span class="dv">26</span></code>
-on Godbolt is provided here: <a href="https://godbolt.org/z/aMn586Pvx">Compiler Explorer</a>.</p>
+on Godbolt is provided here: <a href="https://godbolt.org/z/7q7z56sM8">Compiler Explorer</a>.</p>
 <h1 data-number="6" id="alternative-considered-demote-static-extents-to-runtime-values"><span class="header-section-number">6</span> Alternative considered: demote
 static extents to runtime values<a href="#alternative-considered-demote-static-extents-to-runtime-values" class="self-link"></a></h1>
 <p>A rejected alternative is to delegate
@@ -815,21 +826,21 @@ static extents to runtime values<a href="#alternative-considered-demote-static-e
 which yields a uniform <code class="sourceCode cpp">IndexType</code> for
 every binding regardless of whether the corresponding extent is static
 or dynamic:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std <span class="op">{</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="dt">size_t</span> I, <span class="kw">typename</span> IndexType, <span class="dt">size_t</span><span class="op">...</span> Extents<span class="op">&gt;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> IndexType get<span class="op">(</span><span class="kw">const</span> extents<span class="op">&lt;</span>IndexType, Extents<span class="op">...&gt;&amp;</span> e<span class="op">)</span> <span class="kw">noexcept</span> <span class="op">{</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> e<span class="op">.</span>extent<span class="op">(</span>I<span class="op">)</span>;</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>namespace std {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    template &lt;size_t I, typename IndexType, size_t... Extents&gt;</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    constexpr IndexType get(const extents&lt;IndexType, Extents...&gt;&amp; e) noexcept {</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        return e.extent(I);</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">typename</span> IndexType, std<span class="op">::</span><span class="dt">size_t</span><span class="op">...</span> Extents<span class="op">&gt;</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> std<span class="op">::</span>tuple_size<span class="op">&lt;</span>std<span class="op">::</span>extents<span class="op">&lt;</span>IndexType, Extents<span class="op">...&gt;&gt;</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">:</span> std<span class="op">::</span>integral_constant<span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span>, <span class="kw">sizeof</span><span class="op">...(</span>Extents<span class="op">)&gt;</span> <span class="op">{}</span>;</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>template &lt;typename IndexType, std::size_t... Extents&gt;</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>struct std::tuple_size&lt;std::extents&lt;IndexType, Extents...&gt;&gt;</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    : std::integral_constant&lt;std::size_t, sizeof...(Extents)&gt; {};</span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> I, <span class="kw">typename</span> IndexType, std<span class="op">::</span><span class="dt">size_t</span><span class="op">...</span> Extents<span class="op">&gt;</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> std<span class="op">::</span>tuple_element<span class="op">&lt;</span>I, std<span class="op">::</span>extents<span class="op">&lt;</span>IndexType, Extents<span class="op">...&gt;&gt;</span> <span class="op">{</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> type <span class="op">=</span> IndexType;</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>template &lt;std::size_t I, typename IndexType, std::size_t... Extents&gt;</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>struct std::tuple_element&lt;I, std::extents&lt;IndexType, Extents...&gt;&gt; {</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    using type = IndexType;</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>};</span></code></pre></div>
 <p>This alternative is simpler to specify, but that simplicity is bought
 by discarding the compile-time information that the user encoded in the
 static extents, with no way for user code to recover it. This paper does
@@ -848,12 +859,12 @@ synopsis <span>23.7.3.2
 synopsis in <span>23.7.3.2
 <a href="https://wg21.link/mdspan.syn">[mdspan.syn]</a></span> as
 follows:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a> <span class="kw">namespace</span> std <span class="op">{</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>   <span class="co">// ...</span></span>
+<div class="sourceCode" id="cb6"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a> namespace std {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>   // ...</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>   <span class="co">// [mdspan.extents.dims], alias template dims</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>   <span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> Rank, <span class="kw">class</span> IndexType <span class="op">=</span> <span class="dt">size_t</span><span class="op">&gt;</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>     <span class="kw">using</span> dims <span class="op">=</span> <em>see below</em>;</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>   // [mdspan.extents.dims], alias template dims</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>   template&lt;size_t Rank, class IndexType = size_t&gt;</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>     using dims = <em>see below</em>;</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default cpp">// [mdspan.extents.tuple], tuple interface</code></span></ins></span></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default cpp">template&lt;class T&gt; struct tuple_size;</code></span></ins></span></span>
@@ -873,8 +884,8 @@ follows:</p>
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default cpp">constexpr tuple_element_t&lt;I, extents&lt;IndexType, Extents...&gt;&gt;</code></span></ins></span></span>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>      <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default cpp">get(const extents&lt;IndexType, Extents...&gt;&amp; e) noexcept;</code></span></ins></span></span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>   <span class="co">// ...</span></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a> <span class="op">}</span></span></code></pre></div>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>   // ...</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a> }</span></code></pre></div>
 <h2 data-number="7.2" id="tuple-interface-mdspan.extents.tuple"><span class="header-section-number">7.2</span> Tuple interface
 [mdspan.extents.tuple]<a href="#tuple-interface-mdspan.extents.tuple" class="self-link"></a></h2>
 <p>Insert a new subclause at the end of <span>23.7.3.3
@@ -896,13 +907,24 @@ immediately after <span>23.7.3.3.7
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    constant_wrapper&lt;</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>      static_cast&lt;IndexType&gt;(</span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        extents&lt;IndexType, Extents...&gt;::static_extent(I))&gt;&gt;;</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>};</span></code></pre></div>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>};</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>template&lt;size_t I, class IndexType, size_t... Extents&gt;</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>struct tuple_element&lt;I, const extents&lt;IndexType, Extents...&gt;&gt; {</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  using type = conditional_t&lt;</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    extents&lt;IndexType, Extents...&gt;::static_extent(I) == dynamic_extent,</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    IndexType,</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    constant_wrapper&lt;</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>      static_cast&lt;IndexType&gt;(</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        extents&lt;IndexType, Extents...&gt;::static_extent(I))&gt;&gt;;</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>};</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
 <em>Mandates</em>:
 <code class="sourceCode default cpp">I &lt; sizeof...(Extents)</code> is
 <code class="sourceCode default cpp">true</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode default default"><code class="sourceCode default"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>template&lt;size_t I, class IndexType, size_t... Extents&gt;</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>constexpr auto get(const extents&lt;IndexType, Extents...&gt;&amp; e) noexcept;</span></code></pre></div>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>constexpr tuple_element_t&lt;I, extents&lt;IndexType, Extents...&gt;&gt;</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  get(const extents&lt;IndexType, Extents...&gt;&amp; e) noexcept;</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span>
 <em>Mandates</em>:
 <code class="sourceCode default cpp">I &lt; sizeof...(Extents)</code> is
