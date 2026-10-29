@@ -6,8 +6,57 @@ features, paper milestones, and large implementation changes.
 
 ## 2026
 
+### August 2026
+
+- Added custom C++ keyword highlighting through `highlighting.keywords.cpp`
+  in the YAML metadata block of a document.
+
 ### June 2026
 
+- Added `MANUAL.md` as the source for the up-to-date user's guide, generated
+  `MANUAL.html` and `MANUAL.pdf`, and changed GitHub Pages deployment to
+  publish the manual as the project website.
+- Trimmed `README.md` down to a project overview and links to the generated
+  manual instead of duplicating detailed framework documentation.
+- Added a `render` filter for manual examples that show Markdown source next
+  to the rendered output without relying on the older side-by-side test tool.
+- Added `::: wording` support for automatic paragraph-number handling in
+  proposed wording, including nested bullet and decimal lists, pinned numbers,
+  and suppressed numbering.
+- Added automatic paragraph-number expansion for explicit `.pnum` spans inside
+  `::: wording`, such as `[#]{.pnum}` and nested forms like `[#.#]{.pnum}`.
+- Added self-links for paragraph numbers and changed target highlighting to
+  emphasize the referenced paragraph content instead of only the marginal
+  paragraph number.
+- Added automatic note and example numbering within `::: wording`, including
+  pinned numbers, unnumbered notes/examples, and independent note/example
+  counters.
+- Added paragraph suffix stable references such as `[stable.name]/1`, and
+  improved stable-name data generation through `srefs.json` and `srefs.defs`.
+- Added `number-srefs` metadata to control whether section numbers are shown
+  by default for stable-name references.
+- Simplified stable-name reference rendering so numbered stable references
+  include their section title directly instead of requiring a separate `.title`
+  option.
+- Added explicit embedded-Markdown opt-in and delimiter customization for code
+  elements while preserving default embedded-Markdown behavior for configured
+  code languages.
+- Restored `diff` as one of the default embedded-Markdown code classes.
+- Factored formatting filters so generated fragments are processed more
+  consistently with top-level documents.
+- Switched generated HTML math rendering from MathJax to MathML.
+- Refreshed C++ syntax highlighting around an upstream KDE syntax definition,
+  a smaller WG21-specific syntax patch, and YAML-provided highlighting CSS and
+  LaTeX macros.
+- Fixed LaTeX output for PDF metadata, title and table-of-contents link
+  targets, and inline highlighted code inside strikeout, underline, and mark
+  spans.
+- Improved build behavior by avoiding unnecessary virtual-environment rebuilds
+  during `make update` and writing generated reference files through temporary
+  outputs before replacing existing files.
+- Improved downstream Makefile integration by splitting paper Markdown inputs
+  from framework auxiliary Markdown inputs, restoring the public `DEPS`
+  aggregate, and making framework source dependencies explicit.
 - Upgraded the framework to Pandoc 3.9.0.2 and Panflute 2.3.1, including
   refreshed default HTML and LaTeX templates.
 - Updated WG21-specific template patches so they apply cleanly on top of the
@@ -18,6 +67,8 @@ features, paper milestones, and large implementation changes.
   template-driven color rules in `wg21.html`.
 - Fixed generated table styling for Pandoc 3.x HTML output, including the
   document information table in the title block.
+- Improved comparison-table rendering by preserving explicit Markdown table
+  widths where needed and making comparison tables span the full width in HTML.
 - Disabled raw HTML parsing for Markdown input so C++-style angle brackets are
   not silently treated as HTML tags, and changed browser page titles to use
   plain text rather than Markdown serialization.

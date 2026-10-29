@@ -1,0 +1,25 @@
+defaults:
+  - ${.}/common.yaml
+
+number-sections: true
+table-of-contents: true
+self-contained: true
+
+css:
+  - templates/14882.css
+  - templates/wg21.css
+  - templates/paper.css
+  - templates/toc.css
+
+pdf-engine: xelatex
+
+template: wg21
+
+metadata-files:
+  - paper.yaml
+  - ${USERDATA}/syntax/highlighting-macros.yaml
+
+# Used for various resources
+# e.g. bibliography, CSS, `favicon.ico` in `wg21.html`.
+resource-path:
+  - ${USERDATA}

@@ -1,95 +1,33 @@
-SRCDIR ?= .
-OUTDIR ?= generated
+ifeq ($(lastword $(MAKEFILE_LIST)),$(firstword $(MAKEFILE_LIST)))
+-include local.mk
+include flat.mk
 
-DEFAULTS ?= $(wildcard $(SRCDIR)/defaults.yaml)
-METADATA ?= $(wildcard $(SRCDIR)/metadata.yaml)
-REQUIREMENTS ?= $(wildcard $(SRCDIR)/requirements.txt)
+$(OUTDIR)/MANUAL.render.md: MANUAL.md $(DATADIR)/filters/render.py $(PANDOC_DIR) $(PYTHON_DIR) | $(OUTDIR)
+	pandoc $< -o $@ --standalone --filter $(DATADIR)/filters/render.py
 
-override SRC := $(filter-out %/LICENSE.md %/README.md, $(wildcard $(SRCDIR)/*.md))
+$(OUTDIR)/MANUAL.html $(OUTDIR)/MANUAL.latex $(OUTDIR)/MANUAL.pdf: $(OUTDIR)/MANUAL.render.md $(DEPS) | $(OUTDIR)
+	$(PANDOC)
 
-override HTML := $(SRC:.md=.html)
-override LATEX := $(SRC:.md=.latex)
-override PDF := $(SRC:.md=.pdf)
+$(OUTDIR)/MANUAL.slides.render.md: MANUAL.slides.md $(DATADIR)/filters/render.py $(PANDOC_DIR) $(PYTHON_DIR) | $(OUTDIR)
+	pandoc $< -o $@ --standalone --filter $(DATADIR)/filters/render.py
 
-override ROOTDIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+manual_slides_css := $(DATADIR)/templates/slides-guide.css
+override WATCHDEPS += $(manual_slides_css)
 
-override DEPSDIR := $(ROOTDIR)/deps
+$(OUTDIR)/MANUAL.slides.html: $(OUTDIR)/MANUAL.slides.render.md \
+		$(COMMONDEPS) $(slide_deps) $(manual_slides_css) \
+		$(PANDOC_DIR) $(REVEALJS_DIR) | $(OUTDIR)
+	$(PANDOC_SLIDES) --css=$(manual_slides_css)
 
-override PANDOC_VER := 3.9.0.2
-override PANDOC_DIR := $(DEPSDIR)/pandoc/$(PANDOC_VER)
-override PYTHON_DIR := $(DEPSDIR)/python
-override PYTHON_BIN := $(PYTHON_DIR)/bin/python3
+.PHONY: check
+check:
+	@$(MAKE) -C tests check
+else
+override THIS_FILE := $(lastword $(MAKEFILE_LIST))
+override THIS_DIR := $(dir $(THIS_FILE))
+override INCLUDED_FROM := $(lastword $(filter-out $(THIS_FILE),$(MAKEFILE_LIST)))
 
-export SHELL := bash
-export PATH := $(PANDOC_DIR):$(PYTHON_DIR)/bin:$(PATH)
+$(warning $(INCLUDED_FROM) includes deprecated $(THIS_FILE); include $(THIS_DIR)flat.mk or $(THIS_DIR)paper.mk instead. See https://mpark.github.io/wg21/MANUAL.html#project-layouts)
 
-override DATADIR := $(ROOTDIR)/data
-
-override define PANDOC
-$(eval override FILE := $(filter %.md, $^))
-$(eval override CMD := pandoc $(FILE) -o $@ --mathjax -d $(DATADIR)/defaults.yaml)
-$(eval $(and $(DEFAULTS), override CMD += -d $(DEFAULTS)))
-$(eval $(and $(METADATA), override CMD += --metadata-file $(METADATA)))
-$(if $(filter %.html, $@),
-  $(eval override TOCDEPTH := $(shell $(PYTHON_BIN) $(DATADIR)/toc-depth.py < $(FILE)))
-  $(eval $(and $(TOCDEPTH), override CMD += --toc-depth $(TOCDEPTH))))
-$(CMD)
-endef
-
-override SRCDEPS := $(shell find $(DATADIR) -type f)
-$(eval $(and $(DEFAULTS), override SRCDEPS += $(DEFAULTS)))
-$(eval $(and $(METADATA), override SRCDEPS += $(METADATA)))
-
-override GENDEPS := $(PANDOC_DIR) $(PYTHON_DIR) $(addprefix $(DATADIR)/, defaults.yaml csl.json annex-f)
-
-.PHONY: all
-all: $(PDF)
-
-.PHONY: html
-html: $(HTML)
-
-.PHONY: latex
-latex: $(LATEX)
-
-.PHONY: pdf
-pdf: $(PDF)
-
-ifneq ($(SRCDIR), $(OUTDIR))
-.PHONY: clean
-clean:
-	rm -rf $(DEPSDIR)/pandoc $(DEPSDIR)/python $(GENDEPS) $(OUTDIR)
-
-.PHONY: $(HTML) $(LATEX) $(PDF)
-$(HTML) $(LATEX) $(PDF): $(SRCDIR)/%: $(OUTDIR)/%
+include $(THIS_DIR)flat.mk
 endif
-
-.PHONY: update
-update:
-	@$(MAKE) --always-make $(DATADIR)/csl.json $(DATADIR)/annex-f
-
-$(OUTDIR):
-	mkdir -p $@
-
-$(PANDOC_DIR): $(DEPSDIR)/install-pandoc.sh
-	PANDOC_VER=$(PANDOC_VER) PANDOC_DIR=$(PANDOC_DIR) $(DEPSDIR)/install-pandoc.sh
-
-$(PYTHON_DIR): $(DEPSDIR)/install-venv.sh $(DEPSDIR)/requirements.txt $(REQUIREMENTS)
-	PYTHON_DIR=$(PYTHON_DIR) $(DEPSDIR)/install-venv.sh -r $(DEPSDIR)/requirements.txt $(addprefix -r ,$(REQUIREMENTS))
-
-$(DATADIR)/defaults.yaml: $(DATADIR)/defaults.sh
-	DATADIR=$(abspath $(DATADIR)) $< > $@
-
-$(DATADIR)/csl.json: $(DATADIR)/refs.py $(PYTHON_DIR)
-	set -e; trap 'rm -f "$@"' EXIT; $(PYTHON_BIN) $< > "$@"; trap - EXIT
-
-$(DATADIR)/annex-f:
-	set -e; trap 'rm -f "$@"' EXIT; curl -fsSL https://timsong-cpp.github.io/cppwp/annex-f -o "$@"; trap - EXIT
-
-$(OUTDIR)/%.html: $(SRCDIR)/%.md $(SRCDEPS) $(GENDEPS) | $(OUTDIR)
-	$(PANDOC) --bibliography $(DATADIR)/csl.json
-
-$(OUTDIR)/%.latex: $(SRCDIR)/%.md $(SRCDEPS) $(GENDEPS) | $(OUTDIR)
-	$(PANDOC) --bibliography $(DATADIR)/csl.json
-
-$(OUTDIR)/%.pdf: $(SRCDIR)/%.md $(SRCDEPS) $(GENDEPS) | $(OUTDIR)
-	$(PANDOC) --bibliography $(DATADIR)/csl.json

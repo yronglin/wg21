@@ -1,6 +1,14 @@
 data/defaults.yaml
 data/csl.json
+data/srefs.json
+data/srefs.defs
 data/annex-f
 deps/pandoc
 deps/python
 .DS_Store
+deps/revealjs
+generated/
+local.mk
+__pycache__/
+tests/actual
+tests/paper/actual

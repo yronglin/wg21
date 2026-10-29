@@ -66,9 +66,14 @@ $endif$
   \vskip 1.5em
   \begin{flushright}
     \begin{tabular}{ll}
-Document \#:&$document$\\
+Document \#:&$document$$if(number)$
+  [\href{https://wg21.link/P$number$}{Latest}]
+  [\href{https://wg21.link/P$number$/status}{Status}]$if(source)$
+  [\href{$source$}{Source}]$endif$$endif$\\
 Date:       &\@date\\
-Project:    &Programming Language C++\\
+$if(project)$
+Project:    &$project$\\
+$endif$
 Audience:   $for(audience)$&$audience$\\$endfor$
 $if(revises)$
 Revises:    &$revises$\\
@@ -99,6 +104,7 @@ $if(has-frontmatter)$
 \frontmatter
 $endif$
 $if(title)$
+\hypertarget{title-block-header}{\label{title-block-header}}
 \maketitle
 $if(abstract)$
 \begin{abstract}
@@ -122,6 +128,7 @@ $if(toccolor)$
 $endif$
 $endif$
 \setcounter{tocdepth}{$toc-depth$}
+\hypertarget{toctitle}{\label{toctitle}}
 \tableofcontents
 }
 $endif$
